@@ -31,17 +31,14 @@ class Preprocess_News_Papers():
         segment_id = 0
         
         while start < len(words): 
-            # Découper un segment en limitant strictement à max_length mots
             end = min(start + max_length, len(words))
             segment = ' '.join(words[start:end])
-            
-            # Vérifier et tronquer si nécessaire
+
             if len(segment.split()) > max_length:
                 segment = ' '.join(words[start:start+max_length])
             
             segments.append((segment, segment_id, published_at))
-            
-            # Déplacer le début avec chevauchement
+
             start += max_length - overlap_length
             segment_id += 1
             
