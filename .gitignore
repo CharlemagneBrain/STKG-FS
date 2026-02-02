@@ -1,2 +1,4 @@
 stkgfs
-Fine-Tuning/annotations/*
+Fine-Tuning/annotations/val_extended_bio_feb.json
+Fine-Tuning/annotations/train_extended_bio_feb.json
+Fine-Tuning/annotations/test_extended_bio_feb.json
