@@ -1,0 +1,434 @@
+term,concept,theme,phase
+baisse de la qualité du sol,champ infertile,agriculture,
+champ infertile,champ infertile,agriculture,
+dégradation du sol,champ infertile,agriculture,
+incapable de semer,champ infertile,agriculture,
+infertilité du sol,champ infertile,agriculture,
+terre non arable,champ infertile,agriculture,
+terre non-arable,champ infertile,agriculture,
+champs infertiles,champs infertiles,agriculture,precrise
+dégradation des sol,champs infertiles,agriculture,precrise
+infertilité des sols,champs infertiles,agriculture,precrise
+terres non-arables,champs infertiles,agriculture,precrise
+distribution de vivres affectée,distribution de vivres affectée,agriculture,precrise
+CULTURES DE RENTE POUR L'EXPORTATION,faible diversité agricole,agriculture,precrise
+affectaction de l'agriculture de subsistance,faible diversité agricole,agriculture,precrise
+affecte l'agriculture de subsistance,faible diversité agricole,agriculture,precrise
+culture vivrière déplacée,faible diversité agricole,agriculture,precrise
+culture vivrière limitée,faible diversité agricole,agriculture,precrise
+cultures vivrières déplacées,faible diversité agricole,agriculture,precrise
+cultures vivrières limitées,faible diversité agricole,agriculture,precrise
+dépendance alimantaire,faible diversité agricole,agriculture,precrise
+dépendance aux importations,faible diversité agricole,agriculture,precrise
+faible diversité agricole,faible diversité agricole,agriculture,precrise
+gaspillage alimentaire,gaspillage alimentaire,agriculture,precrise
+indisponibilité alimentaire,indisponibilité alimentaire,agriculture,precrise
+magasins paysans vides,indisponibilité alimentaire,agriculture,precrise
+stocks alimentaires vides,indisponibilité alimentaire,agriculture,precrise
+engrais,intrants,agriculture,
+fertilisant,intrants,agriculture,
+intrant,intrants,agriculture,
+intrants,intrants,agriculture,
+faible technification,mécanisation agricole inefficace,agriculture,precrise
+faible technification agricole,mécanisation agricole inefficace,agriculture,precrise
+manque d'agro-équipément,mécanisation agricole inefficace,agriculture,precrise
+manque d'équipément agricole,mécanisation agricole inefficace,agriculture,precrise
+mécanisation agricole inefficace,mécanisation agricole inefficace,agriculture,precrise
+technologie agricole insufissante,mécanisation agricole inefficace,agriculture,precrise
+technologies agricoles insufissantes,mécanisation agricole inefficace,agriculture,precrise
+attaque parasitaire,organismes invasifs et pestes animales,agriculture,
+chenille,organismes invasifs et pestes animales,agriculture,
+criquet,organismes invasifs et pestes animales,agriculture,
+jasside,organismes invasifs et pestes animales,agriculture,
+mauvaise herbe,organismes invasifs et pestes animales,agriculture,
+organismes invasifs et pestes animales,organismes invasifs et pestes animales,agriculture,
+peste,organismes invasifs et pestes animales,agriculture,
+plantes envahissantes,organismes invasifs et pestes animales,agriculture,
+ravageur,organismes invasifs et pestes animales,agriculture,
+épidemie animale,organismes invasifs et pestes animales,agriculture,
+épizootie,organismes invasifs et pestes animales,agriculture,
+champs dévastés,pertes agricoles,agriculture,precrise
+pertes agricoles,pertes agricoles,agriculture,precrise
+pertes alimentaires,pertes agricoles,agriculture,precrise
+pertes de bétail,pertes agricoles,agriculture,precrise
+ravagé,pertes agricoles,agriculture,precrise
+pleuvoir,pluie,agriculture,
+pluie,pluie,agriculture,
+pluviométrie,pluie,agriculture,
+précipitations,pluie,agriculture,
+campagne,production,agriculture,
+moisson insuffisant,production,agriculture,
+production,production,agriculture,
+rendement,production,agriculture,
+récolte,production,agriculture,
+récolte abondante,production,agriculture,
+récolte catastrophique,production,agriculture,
+récolte diminue,production,agriculture,
+récolte fructueuse,production,agriculture,
+récolte s' amenuise,production,agriculture,
+récolte tardive,production,agriculture,
+récoltes médiocres,production,agriculture,
+récoltes pourrissent,production,agriculture,
+récoltes sont prometteuses,production,agriculture,
+agriculture défaillante,production agricole déficitaire,agriculture,
+baisse du rendement,production agricole déficitaire,agriculture,
+bilan céréalier déficitaire,production agricole déficitaire,agriculture,
+champ dévasté,production agricole déficitaire,agriculture,
+champ ravagé,production agricole déficitaire,agriculture,
+faible production céréalière,production agricole déficitaire,agriculture,
+faible vente de bétail,production agricole déficitaire,agriculture,
+mauvaise campagne agricole,production agricole déficitaire,agriculture,
+mort du bétail,production agricole déficitaire,agriculture,
+perte alimentaire,production agricole déficitaire,agriculture,
+perte de bétail,production agricole déficitaire,agriculture,
+production agricole déficitaire,production agricole déficitaire,agriculture,
+production insuffisante,production agricole déficitaire,agriculture,
+système agricole défaillant,production agricole déficitaire,agriculture,
+système agro-alimentaire défaillant,production agricole déficitaire,agriculture,
+production déficitaire,production déficitaire,agriculture,precrise
+aliment dangereux,qualité réduite des aliments,agriculture,precrise
+aliment pollué,qualité réduite des aliments,agriculture,precrise
+aliment toxique,qualité réduite des aliments,agriculture,precrise
+aliments dangereux,qualité réduite des aliments,agriculture,precrise
+aliments pollués,qualité réduite des aliments,agriculture,precrise
+aliments toxiques,qualité réduite des aliments,agriculture,precrise
+fruit contaminé,qualité réduite des aliments,agriculture,precrise
+fruits contaminés,qualité réduite des aliments,agriculture,precrise
+incomestible,qualité réduite des aliments,agriculture,precrise
+légume contaminé,qualité réduite des aliments,agriculture,precrise
+légumes contaminés,qualité réduite des aliments,agriculture,precrise
+mauvaise qualité des aliments,qualité réduite des aliments,agriculture,precrise
+produit périmé,qualité réduite des aliments,agriculture,precrise
+produits périmés,qualité réduite des aliments,agriculture,precrise
+qualité réduite des aliments,qualité réduite des aliments,agriculture,precrise
+rupture de la chaîne du froid,qualité réduite des aliments,agriculture,precrise
+baisse de stock alimentaire,rupture de stock alimentaire,agriculture,
+désapprovisionnement,rupture de stock alimentaire,agriculture,
+indisponibilité d'aliments,rupture de stock alimentaire,agriculture,
+magasin paysan vide,rupture de stock alimentaire,agriculture,
+prise alimentaire,rupture de stock alimentaire,agriculture,
+pénurie alimentaire,rupture de stock alimentaire,agriculture,
+rationnement,rupture de stock alimentaire,agriculture,
+rationnement des aliments,rupture de stock alimentaire,agriculture,
+rationnement des denrées,rupture de stock alimentaire,agriculture,
+rupture de stock,rupture de stock alimentaire,agriculture,
+rupture de stock alimentaire,rupture de stock alimentaire,agriculture,
+stock alimentaire vide,rupture de stock alimentaire,agriculture,
+résilience alimentaire,résilience alimentaire,agriculture,postcrise
+réserve,stock alimentaire,agriculture,
+réserves agricoles,stock alimentaire,agriculture,
+réserves des greniers,stock alimentaire,agriculture,
+stock,stock alimentaire,agriculture,
+stock alimentaire,stock alimentaire,agriculture,
+systeme agro,systeme agro,agriculture,
+système agricole,systeme agro,agriculture,
+système agro-alimentaire,systeme agro,agriculture,
+système agroalimentaire,systeme agro,agriculture,
+système alimentaire,systeme agro,agriculture,
+épizootie ,épizootie ,agriculture,precrise
+aide alimentaire d’urgence,aide alimentaire d’urgence,alimentaire,oncrise
+WFP,aide humanitaire alimentaire,alimentaire,
+World Food Programme,aide humanitaire alimentaire,alimentaire,
+aide alimentaire,aide humanitaire alimentaire,alimentaire,
+aide humanitaire alimentaire,aide humanitaire alimentaire,alimentaire,
+programme alimentaire mondial,aide humanitaire alimentaire,alimentaire,
+repas scolaire,aide humanitaire alimentaire,alimentaire,
+repas solidaire,aide humanitaire alimentaire,alimentaire,
+aide humanitaire,aide humanitaire non alimentaire ou non specifiée,alimentaire,
+aide humanitaire non alimentaire ou non specifiée,aide humanitaire non alimentaire ou non specifiée,alimentaire,
+affamées,famine,alimentaire,oncrise
+crise alimentaire,famine,alimentaire,oncrise
+crise de subsistances,famine,alimentaire,oncrise
+crise frumentaire,famine,alimentaire,oncrise
+faim,famine,alimentaire,oncrise
+famine,famine,alimentaire,oncrise
+inanition,famine,alimentaire,oncrise
+moyen de subsistance en danger,famine,alimentaire,oncrise
+moyens de subsistance sont en danger,famine,alimentaire,oncrise
+sans accès à la nourriture,famine,alimentaire,oncrise
+victimes de la faim,famine,alimentaire,oncrise
+catastrophe,catastrophe,crisegeneral,oncrise
+crise,crise,crisegeneral,oncrise
+misère,misère,crisegeneral,oncrise
+VOLATILITÉ DES PRIX AGRICOLES,augmentation des prix,economique,precrise
+VOLATILITÉ DES PRIX alimentaires,augmentation des prix,economique,precrise
+augmentation des prix,augmentation des prix,economique,precrise
+flambée de prix,augmentation des prix,economique,precrise
+hausse de prix,augmentation des prix,economique,precrise
+hausse des prix des denrées,augmentation des prix,economique,precrise
+inflations alimentaire,augmentation des prix,economique,precrise
+montée de prix,augmentation des prix,economique,precrise
+prix de l'alimentation ont augmenté,augmentation des prix,economique,precrise
+prix élévés des denrées,augmentation des prix,economique,precrise
+spéculation des prix,augmentation des prix,economique,precrise
+spéculation excessive,augmentation des prix,economique,precrise
+augmentation des prix des aliments,augmentation des prix des aliments,economique,
+flambée des prix des aliments,augmentation des prix des aliments,economique,
+hausse des prix alimentaires,augmentation des prix des aliments,economique,
+hausse des prix des matières alimentaires,augmentation des prix des aliments,economique,
+hausse du prix des denrées,augmentation des prix des aliments,economique,
+inflation alimentaire,augmentation des prix des aliments,economique,
+instabilité des prix des aliments,augmentation des prix des aliments,economique,
+panier moyen subit une hausse,augmentation des prix des aliments,economique,
+prix élevés des denrées,augmentation des prix des aliments,economique,
+spéculation des prix des aliments,augmentation des prix des aliments,economique,
+volatilité des aliments,augmentation des prix des aliments,economique,
+volatilité des prix des céréales,augmentation des prix des aliments,economique,
+augmentation des prix des intrants agricoles,augmentation des prix des intrants agricoles,economique,
+flambée des prix des intrants,augmentation des prix des intrants agricoles,economique,
+flambée du prix des fertilisants,augmentation des prix des intrants agricoles,economique,
+hausse du coût des matières premières,augmentation des prix des intrants agricoles,economique,
+matière première trop chère,augmentation des prix des intrants agricoles,economique,
+augmentation des prix des transports,augmentation des prix des transports,economique,
+augmentation du carburant,augmentation des prix des transports,economique,
+augmentation du prix des hydrocarbures,augmentation des prix des transports,economique,
+augmentation du prix du gaz,augmentation des prix des transports,economique,
+choc pétrolier,augmentation des prix des transports,economique,
+envol du fret,augmentation des prix des transports,economique,
+flambée du prix du gaz,augmentation des prix des transports,economique,
+hausse du taux de fret,augmentation des prix des transports,economique,
+inflation pétrolière,augmentation des prix des transports,economique,
+dévaster l'économie,dévaster l'économie,economique,precrise
+embargo international,embargo international,economique,precrise
+faible diversité économique,faible diversité économique,economique,precrise
+seule source de revenu,faible diversité économique,economique,precrise
+appauvrissement économique,inflation,economique,precrise
+baisse de revenu,inflation,economique,precrise
+baisse du pouvoir d'achat,inflation,economique,precrise
+bulle foncière,inflation,economique,precrise
+bulle spéculative,inflation,economique,precrise
+dette extérieure,inflation,economique,precrise
+dégradation de moyen d’existence,inflation,economique,precrise
+dépendance agricole,inflation,economique,precrise
+inflation,inflation,economique,precrise
+mauvaise condition macroéconomique,inflation,economique,precrise
+perte d'actif,inflation,economique,precrise
+interdiction d'exportation,interdiction d'exporter,economique,precrise
+interdiction d'exporter,interdiction d'exporter,economique,precrise
+interdiction à l'exportation,interdiction d'exporter,economique,precrise
+interdiction à l’exportation,interdiction d'exporter,economique,precrise
+non-exportation de produits alimentaires,interdiction d'exporter,economique,precrise
+marchés inestables,marchés inestables,economique,precrise
+coût,prix,economique,
+coûter,prix,economique,
+prix,prix,economique,
+pouvoir d'achat,situation économique,economique,
+situation économique,situation économique,economique,
+accaparement des terres,accaparement des terres,environment,precrise
+saisies de terres,accaparement des terres,environment,precrise
+affectation de l'eau,affectation de l'eau,environment,precrise
+aléa,aléa,environment,precrise
+aléa géologique,aléa géologique,environment,
+chute de pierres,aléa géologique,environment,
+coulée de lave,aléa géologique,environment,
+glissement de terrain,aléa géologique,environment,
+lahar,aléa géologique,environment,
+nuée ardente,aléa géologique,environment,
+séisme,aléa géologique,environment,
+tsunami,aléa géologique,environment,
+éboulement,aléa géologique,environment,
+écroulement,aléa géologique,environment,
+éruption volcanique,aléa géologique,environment,
+catastrophe naturelle,catastrophe naturelle,environment,precrise
+absence de jachère,dégradation environnementale,environment,precrise
+abus d'insecticides,dégradation environnementale,environment,precrise
+abus de pesticides,dégradation environnementale,environment,precrise
+agriculture non durable,dégradation environnementale,environment,precrise
+appauvrissement du sol,dégradation environnementale,environment,precrise
+augmentation des niveaux de salinité,dégradation environnementale,environment,precrise
+destruction de forêts,dégradation environnementale,environment,precrise
+déforestation,dégradation environnementale,environment,precrise
+déforester,dégradation environnementale,environment,precrise
+dégradation de l'environnement,dégradation environnementale,environment,precrise
+dégradation des écosystèmes,dégradation environnementale,environment,precrise
+dégradation environnementale,dégradation environnementale,environment,precrise
+détruire la forêt,dégradation environnementale,environment,precrise
+expansion agricole,dégradation environnementale,environment,precrise
+expansion urbane,dégradation environnementale,environment,precrise
+pillage de forêt,dégradation environnementale,environment,precrise
+saisie de terres,dégradation environnementale,environment,precrise
+salinisation des sols,dégradation environnementale,environment,precrise
+surexploitation agricole,dégradation environnementale,environment,precrise
+surpâturage,dégradation environnementale,environment,precrise
+érosion,dégradation environnementale,environment,precrise
+eruption volcanique,eruption volcanique,environment,precrise
+expropiations,expropiations,environment,precrise
+faible potabilisation,faible potabilisation,environment,precrise
+feu de brousse,incendie,environment,precrise
+feu de forêt,incendie,environment,precrise
+incendie,incendie,environment,precrise
+crue,inondation,environment,precrise
+crue subite,inondation,environment,precrise
+débordement,inondation,environment,precrise
+inondation,inondation,environment,precrise
+pluie acide,inondation,environment,precrise
+pluie diluvienne,inondation,environment,precrise
+pluie dévastatrice,inondation,environment,precrise
+pluie menaçante,inondation,environment,precrise
+pluie mortelle,inondation,environment,precrise
+pluie torrentielle,inondation,environment,precrise
+manque de protection de forêts,manque de protection de forêts,environment,precrise
+manque de puits d' eau,manque de puits d' eau,environment,precrise
+puits s' assèchent,manque de puits d' eau,environment,precrise
+puits s' épuisent,manque de puits d' eau,environment,precrise
+puits se sont taris,manque de puits d' eau,environment,precrise
+mauvaise qualité de l'eau,mauvaise qualité de l'eau,environment,precrise
+météorologique extrême,météorologique extrême,environment,precrise
+pluies acides,pluies intenses,environment,precrise
+pluies diluviennes,pluies intenses,environment,precrise
+pluies dévastatrices,pluies intenses,environment,precrise
+pluies intenses,pluies intenses,environment,precrise
+pluies torrentielles,pluies intenses,environment,precrise
+précipitation irrégulière,précipitation irrégulière,environment,precrise
+salinisation des eaux douces,salinisation des eaux douces,environment,precrise
+assèchement,sécheresse,environment,precrise
+bas niveau d'eau,sécheresse,environment,precrise
+bas niveau d’eau,sécheresse,environment,precrise
+bassin asséché,sécheresse,environment,precrise
+bassin dégradé,sécheresse,environment,precrise
+captage abusif,sécheresse,environment,precrise
+captage dégradé,sécheresse,environment,precrise
+désertification,sécheresse,environment,precrise
+faible précipitation,sécheresse,environment,precrise
+insécurité hydrique,sécheresse,environment,precrise
+insécurité hydrique,sécheresse,environment,precrise
+manque d'eau,sécheresse,environment,precrise
+mauvaise pluviométrie,sécheresse,environment,precrise
+niveau d'eau réduit,sécheresse,environment,precrise
+précipitation insuffisante,sécheresse,environment,precrise
+puits assèchent,sécheresse,environment,precrise
+puits taris,sécheresse,environment,precrise
+puits vides,sécheresse,environment,precrise
+puits épuisent,sécheresse,environment,precrise
+pénurie d'eau,sécheresse,environment,precrise
+rares pluies,sécheresse,environment,precrise
+stress hydrique,sécheresse,environment,precrise
+séchage,sécheresse,environment,precrise
+sécheresse,sécheresse,environment,precrise
+épuisement des eaux souterraines,sécheresse,environment,precrise
+cyclone,tempête,environment,precrise
+orage,tempête,environment,precrise
+ouragan,tempête,environment,precrise
+tempête,tempête,environment,precrise
+tornade,tempête,environment,precrise
+croix rouge,croix rouge,generic,oncrise
+anémie,anémie,humanHealth,postcrise
+fatalité,fatalité,humanHealth,postcrise
+Kwashiorkor,malnutrition,humanHealth,postcrise
+crise nutritionnelle,malnutrition,humanHealth,postcrise
+déficiences en calories,malnutrition,humanHealth,postcrise
+déficiences en protéines,malnutrition,humanHealth,postcrise
+dénutrition,malnutrition,humanHealth,postcrise
+enfants rachitiques,malnutrition,humanHealth,postcrise
+insécurité nutritionnelle,malnutrition,humanHealth,postcrise
+mal nourri,malnutrition,humanHealth,postcrise
+malnourri,malnutrition,humanHealth,postcrise
+malnutrition,malnutrition,humanHealth,postcrise
+malnutrition aiguë,malnutrition,humanHealth,postcrise
+marasme,malnutrition,humanHealth,postcrise
+rabougri,malnutrition,humanHealth,postcrise
+rachitiques,malnutrition,humanHealth,postcrise
+rachitisme,malnutrition,humanHealth,postcrise
+retard de croissance,malnutrition,humanHealth,postcrise
+retard de développement,malnutrition,humanHealth,postcrise
+situation nutritionnelle préoccupante,malnutrition,humanHealth,postcrise
+sous-alimentation,malnutrition,humanHealth,postcrise
+sous-nutrition,malnutrition,humanHealth,postcrise
+émaciation,malnutrition,humanHealth,postcrise
+mortalité,mortalité,humanHealth,postcrise
+mortalité de personnes adultes ou en général,mortalité de personnes adultes ou en général,humanHealth,
+décès d’enfants de moins de 5 ans,mortalité infantile,humanHealth,
+mortalité des enfants de moins de cinq,mortalité infantile,humanHealth,
+mortalité infantile,mortalité infantile,humanHealth,
+taux de mortalité des enfants de moins de 5 ans,mortalité infantile,humanHealth,
+retards d’apprentissage,retards d’apprentissage,humanHealth,postcrise
+situation nutritionnelle préoccupante,situation nutritionnelle préoccupante,humanHealth,postcrise
+PAM,PAM,sociopolitique,postcrise
+action étatique insuffisante,action étatique insuffisante,sociopolitique,
+aide alimentaire insuffisante,action étatique insuffisante,sociopolitique,
+aide humanitaire insuffisante,action étatique insuffisante,sociopolitique,
+alimentation scolaire annulés,action étatique insuffisante,sociopolitique,
+alimentation scolaire ont été annulés,action étatique insuffisante,sociopolitique,
+inaction étatique,action étatique insuffisante,sociopolitique,
+privés de repas scolaires,action étatique insuffisante,sociopolitique,
+repas scolaires ont été supprimés,action étatique insuffisante,sociopolitique,
+repas scolaires supprimés,action étatique insuffisante,sociopolitique,
+armée,attaque armée,sociopolitique,precrise
+attaque armée,attaque armée,sociopolitique,precrise
+attaque aérienne,attaque armée,sociopolitique,precrise
+camion de nourriture affecté,camion de nourriture affecté,sociopolitique,precrise
+conflit,conflit,sociopolitique,precrise
+accaparement de fonds agricoles,corruption,sociopolitique,precrise
+accaparement de fonds agricoles,corruption,sociopolitique,precrise
+aides agricoles détournés,corruption,sociopolitique,precrise
+commerce déloyal,corruption,sociopolitique,precrise
+corruption,corruption,sociopolitique,precrise
+dictatoriel,corruption,sociopolitique,precrise
+dictature,corruption,sociopolitique,precrise
+détournement d'aides,corruption,sociopolitique,precrise
+fonds detournés,corruption,sociopolitique,precrise
+pâte énergétique détourné,corruption,sociopolitique,precrise
+pâte énergétique détournée,corruption,sociopolitique,precrise
+dictateur,dictateur,sociopolitique,precrise
+dommages aux infrastructures,dommages aux infrastructures,sociopolitique,precrise
+groupes armés,groupes armés,sociopolitique,precrise
+coup d'état,instabilité politique,sociopolitique,
+effondrement du gouvernement,instabilité politique,sociopolitique,
+instabilité politique,instabilité politique,sociopolitique,
+putsch,instabilité politique,sociopolitique,
+putsch militaire,instabilité politique,sociopolitique,
+putsch ,instabilité politique,sociopolitique,
+blocus,insuffisance d'infrastructures de transport ou santé,sociopolitique,
+dommage aux infrastructures,insuffisance d'infrastructures de transport ou santé,sociopolitique,
+décombre,insuffisance d'infrastructures de transport ou santé,sociopolitique,
+impact sur le circuit d'approvisionnement,insuffisance d'infrastructures de transport ou santé,sociopolitique,
+impact sur le circuit de commercialisation,insuffisance d'infrastructures de transport ou santé,sociopolitique,
+insuffisance d'infrastructures de transport ou santé,insuffisance d'infrastructures de transport ou santé,sociopolitique,
+insuffisance de l'action étatique,insuffisance de l'action étatique,sociopolitique,precrise
+insécurité,insécurité,sociopolitique,precrise
+inégalité alimentaire,inégalité alimentaire,sociopolitique,precrise
+migration,migration forcé,sociopolitique,precrise
+migration forcé,migration forcé,sociopolitique,precrise
+migrations massives,migration forcé,sociopolitique,precrise
+déplacement forcé,migration forcée,sociopolitique,
+déplacés,migration forcée,sociopolitique,
+migrants,migration forcée,sociopolitique,
+migration forcée,migration forcée,sociopolitique,
+migration massive,migration forcée,sociopolitique,
+réfugiés,migration forcée,sociopolitique,
+moyens de subsistance affectés,moyens de subsistance affectés,sociopolitique,precrise
+paniers solidaires,paniers solidaires,sociopolitique,postcrise
+pertes humaines,pertes humaines,sociopolitique,precrise
+pillage,pillage,sociopolitique,precrise
+stratégie d’adaptation,stratégie d’adaptation,sociopolitique,postcrise
+surpopulation,surpopulation,sociopolitique,precrise
+assiégée,violence,sociopolitique,
+autodéfenses,violence,sociopolitique,
+bataille de clan,violence,sociopolitique,
+bombardement,violence,sociopolitique,
+conflit armé,violence,sociopolitique,
+djihadistes,violence,sociopolitique,
+groupe armé,violence,sociopolitique,
+guerre,violence,sociopolitique,
+incursion,violence,sociopolitique,
+insécurité civile,violence,sociopolitique,
+kolweogo,violence,sociopolitique,
+maffia,violence,sociopolitique,
+mafia,violence,sociopolitique,
+massacre,violence,sociopolitique,
+nourriture volée,violence,sociopolitique,
+repas volés,violence,sociopolitique,
+répression violente,violence,sociopolitique,
+terrorisme,violence,sociopolitique,
+terroriste,violence,sociopolitique,
+troupes étrangères,violence,sociopolitique,
+violations des droits,violence,sociopolitique,
+violence,violence,sociopolitique,
+voler de la nourriture,violence,sociopolitique,
+voler du manger,violence,sociopolitique,
+zone de conflit,violence,sociopolitique,
+énorme explosion,violence,sociopolitique,
+groupes vulnerables,vulnérabilité,sociopolitique,precrise
+personnes exposées,vulnérabilité,sociopolitique,precrise
+personnes vulnerables,vulnérabilité,sociopolitique,precrise
+vulnérabilité,vulnérabilité,sociopolitique,precrise
