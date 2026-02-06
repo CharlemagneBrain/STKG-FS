@@ -427,87 +427,256 @@ The knowledge graph contains **4 node types** and **3 relationship categories**:
 
 ### Queries for Paper Figures
 
-**Query 1: Temporal monitoring of events in Ouagadougou (Figure 4)**
+**Query 1:  Extract of knowledge graph showing three types of relationships (Figure 4)**
 ```cypher
-MATCH (e:Event)-[:LOCATED_IN]->(l:Location {name: 'Ouagadougou'})
-MATCH (e)-[:CONCERNS]->(r:Risk)
+MATCH (n:Event)-[c:CONCERNS]->(r:Risk)
+MATCH (n)-[li:LOCATED_IN]->(l:Location {name : "Bobo-Dioulasso"})
+MATCH (n)-[on:OCCURRED_ON]->(t:Time)
+MATCH (n)-[rec:PRECEDES]->(n1:Event)
+MATCH (n)-[irec:IS_RECURRENT]->(n2:Event)
+MATCH (n2)-[on2:OCCURRED_ON]->(t2:Time)
+MATCH (n2:Event)-[rel3:IS_SYNCHRONOUS]->()
+MATCH (l)-[nr:IS_NEAR_TO]->(l1:Location)
+MATCH (l)-[isf:IS_FROM_PROVINCE]->(l4:Location)
+MATCH (n1)-[loacf:OCCURRED_ON]->(to:Time)
+MATCH (n1)-[css:CONCERNS]->(rss:Risk)
+MATCH (n)-[cs:CONCERNS]->(rs:Risk)
+MATCH (n2)-[cr:CONCERNS]->(rr:Risk)
+MATCH (l5)-[dept:IS_FROM_DEPARTEMENT]->(l)
+
+RETURN n, c, r,li, l, on, t, rec, n1, nr, l1, n2, irec, on2, t2, isf, l4, loacf, to, css, rss, cs, rs, cr, rr, 
+```
+![Knowledge Graph Overview](images/extract_kg_overview.png)
+
+**Query 2: Knowledge graph extract: temporal monitoring of events in the Ouagadougou department (Figure 4)**
+```cypher
+
+// --- BLOC 1: Événements clés du 1er septembre (inondation principale) ---
+MATCH (e_flood:Event)-[c_flood:CONCERNS]->(r_flood:Risk {name: 'inondation'})
+MATCH (e_flood)-[o_flood:OCCURRED_ON]->(t_flood:Time {datetime: '2009-09-01'})
+MATCH (e_flood)-[li_flood:LOCATED_IN]->(l_ouaga:Location {name: 'Ouagadougou'})
+
+WITH collect(e_flood)[0..3] AS flood_events,
+     collect({
+         event: e_flood,
+         risk: r_flood,
+         time: t_flood,
+         concerns: c_flood,
+         occurred: o_flood,
+         located: li_flood          // <-- CONSERVÉ UNIQUEMENT ICI
+     })[0..3] AS flood_triplets,
+     l_ouaga
+
+// --- BLOC 2: Événements synchrones du 1er septembre (autres risques) ---
+OPTIONAL MATCH (e_sync:Event)-[c_sync:CONCERNS]->(r_sync:Risk)
+MATCH (e_sync)-[o_sync:OCCURRED_ON]->(t_sync:Time {datetime: '2009-09-01'})
+MATCH (e_sync)-[:LOCATED_IN]->(l_ouaga)
+WHERE r_sync.name <> 'inondation'
+
+WITH flood_events, flood_triplets, l_ouaga,
+     collect({
+         event: e_sync,
+         risk: r_sync,
+         time: t_sync,
+         concerns: c_sync,
+         occurred: o_sync
+     })[0..4] AS sync_triplets
+
+// --- BLOC 3: Événements AVANT le 1er septembre (précurseurs) ---
+OPTIONAL MATCH (e_before:Event)-[c_before:CONCERNS]->(r_before:Risk)
+MATCH (e_before)-[o_before:OCCURRED_ON]->(t_before:Time)
+MATCH (e_before)-[:LOCATED_IN]->(l_ouaga)
+WHERE t_before.datetime < '2009-09-01' 
+  AND t_before.datetime >= '2009-01-01'
+
+WITH flood_events, flood_triplets, sync_triplets, l_ouaga,
+     collect({
+         event: e_before,
+         risk: r_before,
+         time: t_before,
+         concerns: c_before,
+         occurred: o_before
+     })[0..10] AS before_triplets
+
+// --- BLOC 4: Événements APRÈS le 1er septembre (conséquences) ---
+OPTIONAL MATCH (e_after:Event)-[c_after:CONCERNS]->(r_after:Risk)
+MATCH (e_after)-[o_after:OCCURRED_ON]->(t_after:Time)
+MATCH (e_after)-[:LOCATED_IN]->(l_ouaga)
+WHERE t_after.datetime > '2009-09-01' 
+  AND t_after.datetime <= '2009-09-15'
+
+WITH flood_events, flood_triplets, sync_triplets, before_triplets, l_ouaga,
+     collect({
+         event: e_after,
+         risk: r_after,
+         time: t_after,
+         concerns: c_after,
+         occurred: o_after
+     })[0..3] AS after_triplets
+
+// --- BLOC 5: Hiérarchie spatiale ---
+OPTIONAL MATCH (l_ouaga)-[hp:IS_FROM_PROVINCE]->(province:Location)
+OPTIONAL MATCH (province)-[hr:IS_FROM_REGION]->(region:Location)
+
+// --- BLOC 6: 3 voisins IS_NEAR_TO ---
+OPTIONAL MATCH (l_ouaga)-[near:IS_NEAR_TO]-(voisin:Location)
+WITH flood_events, flood_triplets, sync_triplets, before_triplets, after_triplets,
+     l_ouaga, province, hp, region, hr,
+     collect({relation: near, voisin: voisin})[0..3] AS voisins_3
+
+// --- BLOC 7: Relation IS_FROM_VILLAGE entre Ouagadougou et ses villages ---
+OPTIONAL MATCH (l_village:Location)-[hv:IS_FROM_VILLAGE]->(l_ouaga)
+WITH flood_events, flood_triplets, sync_triplets, before_triplets, after_triplets,
+     l_ouaga, province, hp, region, hr, voisins_3,
+     collect({relation: hv, village: l_village})[0..3] AS villages_ouaga
+
+// --- BLOC 8: Village Bogodogo avec ses événements ---
+OPTIONAL MATCH (e_village:Event)-[li_village:LOCATED_IN]->(l_village:Location {name: 'Bogodogo'})
+OPTIONAL MATCH (e_village)-[c_village:CONCERNS]->(r_village:Risk)
+OPTIONAL MATCH (e_village)-[o_village:OCCURRED_ON]->(t_village:Time)
+OPTIONAL MATCH (l_village)-[hp_village:IS_FROM_PROVINCE]->(province)
+OPTIONAL MATCH (l_village)-[hv_bogodogo:IS_FROM_DEPARTEMENT]->(l_ouaga)
+
+WITH flood_events, flood_triplets, sync_triplets, before_triplets, after_triplets,
+     l_ouaga, province, hp, region, hr, voisins_3, villages_ouaga,
+     collect({
+         event: e_village,
+         risk: r_village,
+         time: t_village,
+         location: l_village,
+         concerns: c_village,
+         occurred: o_village,
+         located: li_village,
+         is_from_province: hp_village,
+         is_from_village: hv_bogodogo
+     })[0..2] AS village_events
+
+// --- BLOC 9: Collecter tous les événements ---
+WITH flood_triplets, sync_triplets, before_triplets, after_triplets,
+     l_ouaga, province, hp, region, hr, voisins_3, villages_ouaga, village_events,
+     [e IN flood_triplets | e.event] + 
+     [e IN sync_triplets | e.event] + 
+     [e IN before_triplets | e.event] + 
+     [e IN after_triplets | e.event] AS all_events
+
+// --- BLOC 10: Relations IS_RECURRENT et IS_SYNCHRONOUS ---
+UNWIND all_events AS ev1
+UNWIND all_events AS ev2
+
+OPTIONAL MATCH (ev1)-[rec:IS_RECURRENT]-(ev2)
+WHERE id(ev1) < id(ev2)
+
+OPTIONAL MATCH (ev1)-[sync_rel:IS_SYNCHRONOUS]-(ev2)
+WHERE id(ev1) < id(ev2)
+
+WITH flood_triplets, sync_triplets, before_triplets, after_triplets,
+     l_ouaga, province, hp, region, hr, voisins_3, villages_ouaga, village_events,
+     all_events,
+     collect(DISTINCT CASE WHEN rec IS NOT NULL 
+             THEN {rel: rec, from: ev1, to: ev2} END) AS recurrent_rels,
+     collect(DISTINCT CASE WHEN sync_rel IS NOT NULL 
+             THEN {rel: sync_rel, from: ev1, to: ev2} END) AS synchronous_rels
+
+// --- BLOC 11: Relations PRECEDES - UNIQUEMENT CHAÎNE DIRECTE ---
+// On ne garde que les relations PRECEDES où il n'existe pas d'intermédiaire
+UNWIND all_events AS ev_from
+UNWIND all_events AS ev_to
+
+OPTIONAL MATCH (ev_from)-[prec:PRECEDES]->(ev_to)
+WHERE ev_from IS NOT NULL AND ev_to IS NOT NULL
+  // FILTRE CRUCIAL: exclure si un intermédiaire existe dans notre ensemble
+  AND NOT EXISTS {
+      MATCH (ev_from)-[:PRECEDES]->(ev_mid)-[:PRECEDES]->(ev_to)
+      WHERE ev_mid IN all_events
+  }
+
+WITH flood_triplets, sync_triplets, before_triplets, after_triplets,
+     l_ouaga, province, hp, region, hr, voisins_3, villages_ouaga, village_events,
+     recurrent_rels, synchronous_rels,
+     collect(DISTINCT CASE WHEN prec IS NOT NULL 
+             THEN {rel: prec, from: ev_from, to: ev_to} END) AS precedes_rels
+
+// --- RETOUR DU SOUS-GRAPHE ---
+RETURN 
+    flood_triplets AS Evenements_Inondation_1er_Sept,
+    sync_triplets AS Evenements_Synchrones_1er_Sept,
+    before_triplets AS Evenements_Avant_Aout,
+    after_triplets AS Evenements_Apres_2_15_Sept,
+    l_ouaga AS Location_Ouagadougou,
+    province AS Province_Kadiogo,
+    hp AS IS_FROM_PROVINCE,
+    region AS Region_Centre,
+    hr AS IS_FROM_REGION,
+    villages_ouaga AS Villages_IS_FROM_VILLAGE,
+    voisins_3 AS Voisins_IS_NEAR_TO,
+    village_events AS Evenements_Village_Bogodogo,
+    [r IN recurrent_rels WHERE r IS NOT NULL] AS Relations_IS_RECURRENT,
+    [s IN synchronous_rels WHERE s IS NOT NULL] AS Relations_IS_SYNCHRONOUS,
+    [p IN precedes_rels WHERE p IS NOT NULL] AS Relations_PRECEDES_Chaine_Directe;
+
+```
+![Historical Events in Ouagadougou](images/H1_Ouaga_historical_events.png)
+
+**Query 4: Table of Vulnerable areas across the country that were affected by frequent crises in 2009: environmental (Figure 5)**
+```cypher
+MATCH (e:Event)-[:CONCERNS]->(r:Risk)
+WHERE r.theme = 'environment' OR r.theme = 'economique'
 MATCH (e)-[:OCCURRED_ON]->(t:Time)
 WHERE t.year = 2009
-RETURN e, r, t, l
-```
+MATCH (e)-[:LOCATED_IN]->(loc:Location)
+RETURN
+  loc.name      AS Lieu,
+  loc.type      AS type,
+  loc.latitude  AS latitude,
+  loc.longitude AS longitude,
+  
+  // ============= RISQUES ENVIRONNEMENTAUX (inchangés) =============
+  SUM(CASE WHEN r.name = 'inondation'      THEN 1 ELSE 0 END) AS Flood,
+  SUM(CASE WHEN r.name = 'incendie'        THEN 1 ELSE 0 END) AS Fire,
+  SUM(CASE WHEN r.name = 'sécheresse'      THEN 1 ELSE 0 END) AS Drought,
+  SUM(CASE WHEN r.name = 'tempête'         THEN 1 ELSE 0 END) AS Storm,
+  SUM(CASE WHEN r.name = 'tornade'         THEN 1 ELSE 0 END) AS Tornado,
+  SUM(CASE WHEN r.name = 'crue'            THEN 1 ELSE 0 END) AS FloodPeak,
+  SUM(CASE WHEN r.name = 'orage'           THEN 1 ELSE 0 END) AS Thunderstorm,
+  SUM(CASE WHEN r.name = 'désertification' THEN 1 ELSE 0 END) AS Desertification,
+  SUM(CASE WHEN r.name = 'déforestation'   THEN 1 ELSE 0 END) AS Deforestation,
+  SUM(CASE WHEN r.name = 'éboulement'      THEN 1 ELSE 0 END) AS Landslide,
+  SUM(CASE WHEN r.name = 'écroulement'     THEN 1 ELSE 0 END) AS Collapse,
+  
+  // ============= RISQUES ÉCONOMIQUES (agrégés) =============
+  
+  // Campagne agricole (seul)
+  SUM(CASE WHEN r.name = 'campagne agricole' THEN 1 ELSE 0 END) AS AgriculturalCampaign,
+  
+  // Augmentation des prix (agrège tous les types de hausses)
+  SUM(CASE WHEN r.name IN [
+    'augmentation des prix',
+    'augmentation du prix',
+    'hausse du prix',
+    'hausse du coût',
+    'hausse des prix',
+    'montée du prix',
+    'prix élevés',
+    'élévation du coût',
+    'inflation'
+  ] THEN 1 ELSE 0 END) AS PriceIncrease
 
-**Query 2: Vulnerable areas by crisis type (Figure 5)**
-```cypher
-// Environmental crises (floods and fires)
-MATCH (e:Event)-[:CONCERNS]->(r:Risk)
-MATCH (e)-[:LOCATED_IN]->(l:Location)
-WHERE r.theme = 'environment'
-  AND l.latitude IS NOT NULL
-RETURN l.name, l.type, l.latitude, l.longitude, r.name, count(e) AS event_count
-ORDER BY event_count DESC
-```
+````
+## Results : 
 
-**Query 3: Recurring events at same location (IS_RECURRENT)**
-```cypher
-MATCH (e1:Event)-[rec:IS_RECURRENT]->(e2:Event)
-WHERE rec.duration_days < 180
-MATCH (e1)-[:CONCERNS]->(r:Risk)
-MATCH (e1)-[:LOCATED_IN]->(l:Location)
-RETURN e1.title, e2.title, rec.duration_days, r.name, l.name
-ORDER BY rec.duration_days
-LIMIT 20
-```
+| Lieu           | Type        | Latitude | Longitude | Flood | Fire | Drought | Storm | Tornado | FloodPeak | Thunderstorm | Desertification | Deforestation | Landslide | Collapse | AgriculturalCampaign | PriceIncrease |
+| -------------- | ----------- | -------- | --------- | ----- | ---- | ------- | ----- | ------- | --------- | ------------ | --------------- | ------------- | --------- | -------- | -------------------- | ------------- |
+| Burkina        | country     | 12.2383  | -1.5616   | 9     | 2    | 0       | 0     | 0       | 0         | 0            | 1               | 1             | 0         | 1        | 2                    | 14            |
+| Ouagadougou    | departement | 12.35    | -1.5167   | 18    | 3    | 0       | 1     | 0       | 1         | 1            | 1               | 0             | 0         | 0        | 0                    | 7             |
+| Paspanga       | village     | –        | –         | 3     | 1    | 0       | 0     | 0       | 0         | 0            | 0               | 0             | 0         | 0        | 0                    | 0             |
+| Bogandé        | village     | 12.9714  | -0.1436   | 1     | 0    | 0       | 0     | 0       | 0         | 0            | 0               | 0             | 0         | 0        | 0                    | 0             |
+| Centre-Nord    | province    | 13.25    | -1.0833   | 1     | 0    | 0       | 1     | 0       | 0         | 0            | 0               | 0             | 0         | 0        | 1                    | 0             |
+| Bobo-Dioulasso | departement | 11.1785  | -4.3069   | 2     | 3    | 1       | 0     | 0       | 0         | 0            | 0               | 0             | 0         | 0        | 1                    | 1             |
+| Sahel          | region      | 14.4747  | 13.5117   | 0     | 0    | 1       | 0     | 0       | 1         | 0            | 0               | 0             | 0         | 0        | 1                    | 0             |
+| Yatenga        | province    | 13.5833  | -2.4167   | 0     | 0    | 0       | 0     | 0       | 0         | 0            | 0               | 0             | 1         | 0        | 0                    | 0             |
+| Gounghin       | village     | –        | –         | 0     | 0    | 0       | 0     | 0       | 0         | 0            | 0               | 0             | 0         | 0        | 0                    | 1             |
 
-**Query 4: Synchronous events -- compound crises**
-```cypher
-MATCH (e1:Event)-[:IS_SYNCHRONOUS]->(e2:Event)
-MATCH (e1)-[:CONCERNS]->(r1:Risk)
-MATCH (e2)-[:CONCERNS]->(r2:Risk)
-MATCH (e1)-[:LOCATED_IN]->(l:Location)
-WHERE r1.theme <> r2.theme
-RETURN l.name, r1.name, r2.name, e1.date
-```
-
-**Query 5: Regional event distribution (Table 3)**
-```cypher
-MATCH (e:Event)-[:LOCATED_IN]->(l:Location)
-MATCH (e)-[:CONCERNS]->(r:Risk)
-OPTIONAL MATCH (l)-[:IS_FROM_DEPARTEMENT|IS_FROM_PROVINCE|IS_FROM_REGION*1..3]->(region:Location)
-WHERE region.type = 'region'
-WITH coalesce(region.name, l.name) AS region_name, r.theme AS theme, count(DISTINCT e) AS event_count
-RETURN region_name, theme, event_count
-ORDER BY event_count DESC
-```
-
-**Query 6: Cascading events -- PRECEDES chains**
-```cypher
-MATCH path = (e1:Event)-[:PRECEDES*1..3]->(e2:Event)
-WHERE e1 <> e2
-MATCH (e1)-[:LOCATED_IN]->(l:Location)
-MATCH (e1)-[:CONCERNS]->(r1:Risk)
-MATCH (e2)-[:CONCERNS]->(r2:Risk)
-RETURN e1.title, r1.name, e2.title, r2.name,
-       length(path) AS chain_length, l.name
-ORDER BY chain_length DESC
-LIMIT 20
-```
-
-**Query 7: Spatial hierarchy traversal**
-```cypher
-// From village to region: Sya -> Bobo-Dioulasso -> Houet -> Hauts-Bassins
-MATCH path = (v:Location)-[:IS_FROM_DEPARTEMENT|IS_FROM_PROVINCE|IS_FROM_REGION*1..3]->(r:Location)
-WHERE v.name = 'Sya'
-RETURN path
-```
-
-**Query 8: Multi-scale event aggregation**
-```cypher
-// Count events at each administrative level for a region
-MATCH (e:Event)-[:LOCATED_IN]->(l:Location)
-MATCH path = (l)-[:IS_FROM_DEPARTEMENT|IS_FROM_PROVINCE|IS_FROM_REGION*0..3]->(region:Location {name: 'Hauts-Bassins'})
-RETURN l.name, l.type, count(e) AS events
-ORDER BY events DESC
-```
+![Environmental, Agricultural and Economic Risks Map](images/map_env_agr_eco_risks_2009_annotated.png)
 
 ---
 

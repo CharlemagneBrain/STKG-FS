@@ -39,7 +39,7 @@ EXTERNAL_LOCATIONS = {
 
 TYPES_TO_REPLACE_WITH_ORIGINAL = {"autre", "ville"}
 
-# Nom local → Nom Wikidata (pour la recherche)
+# Local name -> Wikidata name (for search)
 LOCAL_TO_WIKIDATA_NAMES = {
     "Hauts-Bassins": "Guiriko",
     "hauts-bassins": "Guiriko",
@@ -48,12 +48,12 @@ LOCAL_TO_WIKIDATA_NAMES = {
     "Hauts Bassins": "Guiriko",
 }
 
-# Nom Wikidata → Nom local (pour l'affichage dans la hiérarchie)
+# Wikidata name -> Local display name (for hierarchy display)
 WIKIDATA_TO_LOCAL_NAMES = {
     "Guiriko": "Hauts-Bassins",
 }
 
-# Mapping des types administratifs Wikidata vers nos types
+# Mapping of Wikidata administrative types to standard types
 TYPE_MAPPING = {
     "région du burkina faso": "region",
     "region of burkina faso": "region",
@@ -74,12 +74,12 @@ TYPE_MAPPING = {
 }
 
 # =============================================================================
-# CLASSES DE DONNÉES
+# DATA CLASSES
 # =============================================================================
 
 @dataclass
 class LocationInfo:
-    """Informations géographiques d'un lieu."""
+    """Geographic information for a location."""
     name: str
     wikidata_id: Optional[str] = None
     latitude: Optional[float] = None
@@ -90,20 +90,20 @@ class LocationInfo:
     hierarchy_region: Optional[str] = None
     hierarchy_pays: str = "Burkina Faso"
     neighbors: List[Dict] = None
-    
+
     def __post_init__(self):
         if self.neighbors is None:
             self.neighbors = []
 
 # =============================================================================
-# FONCTIONS UTILITAIRES
+# UTILITY FUNCTIONS
 # =============================================================================
 
 def clean_location_name(name: str) -> str:
-    """Nettoie et normalise le nom d'un lieu."""
+    """Clean and normalize a location name."""
     name = name.strip()
-    
-    # Normalisation des variantes courantes
+
+    # Common variant normalization
     normalizations = {
         "OUAGADOUGOU": "Ouagadougou",
         "ouagadougou": "Ouagadougou",
@@ -113,38 +113,38 @@ def clean_location_name(name: str) -> str:
         "bobo": "Bobo-Dioulasso",
         "Tougan.": "Tougan",
     }
-    
+
     if name in normalizations:
         return normalizations[name]
-    
-    # Remplacer les tirets spéciaux
+
+    # Replace special dashes
     name = re.sub(r'[–—]', '-', name)
-    
+
     return name
 
 
 def get_wikidata_search_name(name: str) -> str:
+    """Convert a local name to the Wikidata search name.
+
+    Example: "Hauts-Bassins" -> "Guiriko"
     """
-    Convertit un nom local en nom Wikidata pour la recherche.
-    Ex: "Hauts-Bassins" → "Guiriko"
-    """
-    # Vérifier dans le mapping (insensible à la casse pour plus de robustesse)
+    # Check mapping (case-insensitive)
     if name in LOCAL_TO_WIKIDATA_NAMES:
         return LOCAL_TO_WIKIDATA_NAMES[name]
-    
-    # Essayer avec différentes variantes de casse
+
+    # Try case variants
     name_lower = name.lower()
     for local_name, wikidata_name in LOCAL_TO_WIKIDATA_NAMES.items():
         if local_name.lower() == name_lower:
             return wikidata_name
-    
+
     return name
 
 
 def get_local_display_name(wikidata_name: str) -> str:
-    """
-    Convertit un nom Wikidata en nom local pour l'affichage.
-    Ex: "Guiriko" → "Hauts-Bassins"
+    """Convert a Wikidata name to the local display name.
+
+    Example: "Guiriko" -> "Hauts-Bassins"
     """
     if wikidata_name in WIKIDATA_TO_LOCAL_NAMES:
         return WIKIDATA_TO_LOCAL_NAMES[wikidata_name]
@@ -152,28 +152,27 @@ def get_local_display_name(wikidata_name: str) -> str:
 
 
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Compute the great-circle distance (km) between two geographic points
+    using the Haversine formula.
     """
-    Calcule la distance en kilomètres entre deux points géographiques
-    en utilisant la formule de Haversine.
-    """
-    R = 6371  # Rayon de la Terre en km
-    
+    R = 6371  # Earth radius in km
+
     lat1_rad = math.radians(lat1)
     lat2_rad = math.radians(lat2)
     delta_lat = math.radians(lat2 - lat1)
     delta_lon = math.radians(lon2 - lon1)
-    
+
     a = math.sin(delta_lat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon/2)**2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-    
+
     return R * c
 
 
 def parse_wikidata_coordinates(coord_string: str) -> Tuple[Optional[float], Optional[float]]:
-    """Parse les coordonnées Wikidata au format 'Point(lon lat)'."""
+    """Parse Wikidata coordinates from 'Point(lon lat)' format."""
     if not coord_string:
         return None, None
-    
+
     match = re.search(r'Point\(([^\s]+)\s+([^\)]+)\)', coord_string)
     if match:
         lon = float(match.group(1))
@@ -183,17 +182,17 @@ def parse_wikidata_coordinates(coord_string: str) -> Tuple[Optional[float], Opti
 
 
 def classify_location_type(wikidata_type: str) -> str:
-    """Classifie le type de lieu selon les catégories standard."""
+    """Classify a location type according to standard categories."""
     if not wikidata_type:
         return "autre"
-    
+
     type_lower = wikidata_type.lower()
-    
+
     for pattern, classification in TYPE_MAPPING.items():
         if pattern in type_lower:
             return classification
-    
-    # Patterns additionnels
+
+    # Additional patterns
     if "région" in type_lower or "region" in type_lower:
         return "region"
     elif "province" in type_lower:
@@ -204,76 +203,73 @@ def classify_location_type(wikidata_type: str) -> str:
         return "village"
     elif "ville" in type_lower or "city" in type_lower or "town" in type_lower:
         return "ville"
-    
+
     return "autre"
 
 
 def determine_location_type(wikidata_type: str, original_label: str) -> str:
-    """
-    Détermine le type final d'un lieu.
-    
-    Si Wikidata retourne un type générique ("autre" ou "ville"), on conserve
-    le label original du DataFrame d'entrée (s'il existe).
-    
+    """Determine the final location type.
+
+    If Wikidata returns a generic type ("autre" or "ville"), the original
+    label from the input DataFrame is preserved instead.
+
     Args:
-        wikidata_type: Type brut retourné par Wikidata
-        original_label: Label original du DataFrame d'entrée
-    
+        wikidata_type: Raw type returned by Wikidata.
+        original_label: Original label from the input DataFrame.
+
     Returns:
-        Le type à utiliser pour ce lieu
+        The type to use for this location.
     """
     classified_type = classify_location_type(wikidata_type)
-    
-    # Si le type Wikidata est générique et qu'on a un label original, on le conserve
+
+    # If Wikidata type is generic and an original label exists, keep it
     if classified_type in TYPES_TO_REPLACE_WITH_ORIGINAL and original_label:
         return original_label
-    
+
     return classified_type
 
 # =============================================================================
-# CLASSE PRINCIPALE - CLIENT WIKIDATA
+# MAIN CLASS - WIKIDATA CLIENT
 # =============================================================================
 
 class WikidataGeoClient:
-    """Client pour interroger Wikidata et récupérer les données géographiques."""
-    
+    """Client for querying Wikidata to retrieve geographic data."""
+
     def __init__(self):
         self.sparql = SPARQLWrapper(WIKIDATA_ENDPOINT)
         self.sparql.setReturnFormat(JSON)
         self.sparql.addCustomHttpHeader("User-Agent", USER_AGENT)
-        self.cache = {}  # Cache des résultats
-    
+        self.cache = {}
+
     def _execute_query(self, query: str) -> Optional[Dict]:
-        """Exécute une requête SPARQL avec gestion des erreurs."""
+        """Execute a SPARQL query with error handling."""
         try:
             self.sparql.setQuery(query)
             results = self.sparql.query().convert()
             time.sleep(REQUEST_DELAY_SECONDS)
             return results
         except Exception as e:
-            logger.warning(f"Erreur SPARQL: {e}")
-            time.sleep(REQUEST_DELAY_SECONDS * 2)  # Attendre plus en cas d'erreur
+            logger.warning(f"SPARQL error: {e}")
+            time.sleep(REQUEST_DELAY_SECONDS * 2)
             return None
-    
+
     def search_location(self, location_name: str) -> Optional[Dict]:
-        """
-        Recherche un lieu sur Wikidata par son nom.
-        Retourne l'ID Wikidata, les coordonnées et le type.
+        """Search for a location on Wikidata by name.
+
+        Returns the Wikidata ID, coordinates, and type.
         """
         clean_name = clean_location_name(location_name)
-        # Convertir le nom local en nom Wikidata si nécessaire
         search_name = get_wikidata_search_name(clean_name)
-        
-        # Vérifier le cache (avec le nom original pour éviter les doublons)
+
+        # Check cache (using original name to avoid duplicates)
         cache_key = f"search_{clean_name.lower()}"
         if cache_key in self.cache:
             return self.cache[cache_key]
-        
-        # Log si le nom a été converti
+
         if search_name != clean_name:
-            logger.info(f"    [Mapping] '{clean_name}' → '{search_name}' (nom Wikidata)")
-        
-        # Requête 1: Recherche avec filtre Burkina Faso
+            logger.info(f"    [Mapping] '{clean_name}' -> '{search_name}' (Wikidata name)")
+
+        # Query 1: Search with Burkina Faso filter
         query = f"""
         SELECT DISTINCT ?item ?itemLabel ?coord ?typeLabel WHERE {{
           {{
@@ -290,15 +286,15 @@ class WikidataGeoClient:
         }}
         LIMIT 5
         """
-        
+
         results = self._execute_query(query)
-        
+
         if results and results["results"]["bindings"]:
             result = results["results"]["bindings"][0]
             entity_id = result["item"]["value"].split("/")[-1]
             coord = result.get("coord", {}).get("value")
             type_label = result.get("typeLabel", {}).get("value", "")
-            
+
             data = {
                 "wikidata_id": entity_id,
                 "coordinates": coord,
@@ -306,8 +302,8 @@ class WikidataGeoClient:
             }
             self.cache[cache_key] = data
             return data
-        
-        # Requête 2: Recherche plus large (sans filtre pays)
+
+        # Query 2: Broader search (without country filter)
         query_broad = f"""
         SELECT DISTINCT ?item ?itemLabel ?coord ?typeLabel ?countryLabel WHERE {{
           {{
@@ -322,18 +318,18 @@ class WikidataGeoClient:
         }}
         LIMIT 10
         """
-        
+
         results = self._execute_query(query_broad)
-        
+
         if results and results["results"]["bindings"]:
-            # Filtrer pour privilégier les résultats du Burkina Faso
+            # Prioritize Burkina Faso results
             for result in results["results"]["bindings"]:
                 country = result.get("countryLabel", {}).get("value", "").lower()
                 if "burkina" in country:
                     entity_id = result["item"]["value"].split("/")[-1]
                     coord = result.get("coord", {}).get("value")
                     type_label = result.get("typeLabel", {}).get("value", "")
-                    
+
                     data = {
                         "wikidata_id": entity_id,
                         "coordinates": coord,
@@ -341,13 +337,13 @@ class WikidataGeoClient:
                     }
                     self.cache[cache_key] = data
                     return data
-            
-            # Si pas de résultat Burkina, prendre le premier
+
+            # If no Burkina result, take the first one
             result = results["results"]["bindings"][0]
             entity_id = result["item"]["value"].split("/")[-1]
             coord = result.get("coord", {}).get("value")
             type_label = result.get("typeLabel", {}).get("value", "")
-            
+
             data = {
                 "wikidata_id": entity_id,
                 "coordinates": coord,
@@ -355,19 +351,19 @@ class WikidataGeoClient:
             }
             self.cache[cache_key] = data
             return data
-        
+
         self.cache[cache_key] = None
         return None
-    
+
     def get_administrative_hierarchy(self, entity_id: str) -> Dict:
-        """
-        Récupère l'arborescence administrative complète pour une entité.
-        Utilise P131 (situé dans l'entité territoriale administrative).
+        """Retrieve the full administrative hierarchy for an entity.
+
+        Uses P131 (located in the administrative territorial entity).
         """
         cache_key = f"hierarchy_{entity_id}"
         if cache_key in self.cache:
             return self.cache[cache_key]
-        
+
         query = f"""
         SELECT ?parent1 ?parent1Label ?parent1TypeLabel
                ?parent2 ?parent2Label ?parent2TypeLabel
@@ -394,28 +390,27 @@ class WikidataGeoClient:
         }}
         LIMIT 1
         """
-        
+
         hierarchy = {
             "departement": None,
             "province": None,
             "region": None,
             "pays": "Burkina Faso"
         }
-        
+
         results = self._execute_query(query)
-        
+
         if results and results["results"]["bindings"]:
             result = results["results"]["bindings"][0]
-            
-            # Parcourir les niveaux et identifier leur type
+
+            # Walk through hierarchy levels and identify their type
             for i in range(1, 5):
                 label = result.get(f"parent{i}Label", {}).get("value", "")
                 type_label = result.get(f"parent{i}TypeLabel", {}).get("value", "").lower()
-                
+
                 if label:
-                    # Convertir le nom Wikidata en nom local si nécessaire
                     display_label = get_local_display_name(label)
-                    
+
                     if "région" in type_label or "region" in type_label:
                         hierarchy["region"] = display_label
                     elif "province" in type_label:
@@ -423,22 +418,21 @@ class WikidataGeoClient:
                     elif "département" in type_label or "commune" in type_label:
                         if not hierarchy["departement"]:
                             hierarchy["departement"] = display_label
-        
+
         self.cache[cache_key] = hierarchy
         return hierarchy
-    
+
     def get_nearby_entities(self, lat: float, lon: float, radius_km: float = 10) -> List[Dict]:
-        """
-        Trouve les entités spatiales voisines dans un rayon donné.
-        Utilise le service géospatial de Wikidata.
-        
-        Note: Les voisins conservent le type Wikidata car ce sont de nouveaux
-        lieux découverts (non présents dans le DataFrame d'entrée).
+        """Find nearby spatial entities within a given radius.
+
+        Uses the Wikidata geospatial service. Neighbors retain the Wikidata
+        type since they are newly discovered locations not present in the
+        input DataFrame.
         """
         cache_key = f"nearby_{lat}_{lon}_{radius_km}"
         if cache_key in self.cache:
             return self.cache[cache_key]
-        
+
         query = f"""
         SELECT DISTINCT ?place ?placeLabel ?distance ?typeLabel ?coord WHERE {{
           SERVICE wikibase:around {{
@@ -454,25 +448,22 @@ class WikidataGeoClient:
         ORDER BY ?distance
         LIMIT 50
         """
-        
+
         neighbors = []
         results = self._execute_query(query)
-        
+
         if results and results["results"]["bindings"]:
             for binding in results["results"]["bindings"]:
                 name = binding.get("placeLabel", {}).get("value", "")
                 distance = binding.get("distance", {}).get("value", "")
                 entity_type = binding.get("typeLabel", {}).get("value", "")
                 coord_str = binding.get("coord", {}).get("value", "")
-                
+
                 n_lat, n_lon = parse_wikidata_coordinates(coord_str)
-                # Pour les voisins, on garde le type Wikidata tel quel
-                # (ce sont de nouveaux lieux, pas de label original disponible)
                 classified_type = classify_location_type(entity_type)
-                
-                # Convertir le nom Wikidata en nom local si nécessaire
+
                 display_name = get_local_display_name(name)
-                
+
                 if display_name and distance:
                     neighbors.append({
                         "nom": display_name,
@@ -482,108 +473,104 @@ class WikidataGeoClient:
                         "lat": n_lat,
                         "lon": n_lon
                     })
-        
+
         self.cache[cache_key] = neighbors
         return neighbors
 
 # =============================================================================
-# FONCTION PRINCIPALE D'ENRICHISSEMENT
+# MAIN ENRICHMENT FUNCTION
 # =============================================================================
 
 def enrich_location(client: WikidataGeoClient, location_name: str, location_label: str) -> LocationInfo:
-    """
-    Enrichit un lieu avec toutes ses informations géographiques.
-    
+    """Enrich a location with all its geographic information.
+
     Args:
-        client: Client Wikidata
-        location_name: Nom du lieu
-        location_label: Label original du DataFrame d'entrée (ex: "departement", "province")
-    
+        client: Wikidata client instance.
+        location_name: Name of the location.
+        location_label: Original label from the input DataFrame (e.g., "departement", "province").
+
     Returns:
-        LocationInfo avec les données enrichies
+        LocationInfo populated with enriched data.
     """
     clean_name = clean_location_name(location_name)
     info = LocationInfo(name=clean_name)
-    
-    # Vérifier si c'est un lieu externe
+
+    # Check if external location
     if clean_name.lower() in EXTERNAL_LOCATIONS:
         info.hierarchy_pays = clean_name
-        logger.info(f"  {clean_name}: Lieu hors Burkina Faso")
+        logger.info(f"  {clean_name}: Location outside Burkina Faso")
         return info
-    
-    # Cas spécial: le pays lui-même
+
+    # Special case: country itself
     if clean_name.lower() in ["burkina", "burkina faso"]:
         info.wikidata_id = BURKINA_FASO_QID
         info.location_type = "country"
         info.latitude = 12.2383
         info.longitude = -1.5616
-        logger.info(f"  {clean_name}: Pays (Burkina Faso)")
+        logger.info(f"  {clean_name}: Country (Burkina Faso)")
         return info
-    
-    # Cas spécial: axes routiers
+
+    # Special case: road axes
     if "axe" in clean_name.lower():
-        logger.info(f"  {clean_name}: Axe routier (non géolocalisable)")
+        logger.info(f"  {clean_name}: Road axis (not geolocatable)")
         return info
-    
-    # Rechercher sur Wikidata
-    logger.info(f"  Recherche: {clean_name}")
+
+    # Search on Wikidata
+    logger.info(f"  Searching: {clean_name}")
     search_result = client.search_location(clean_name)
-    
+
     if search_result:
         info.wikidata_id = search_result["wikidata_id"]
-        
-        # Déterminer le type géographique
+
+        # Determine geographic type
         wikidata_type_raw = search_result.get("wikidata_type", "")
         wikidata_type_classified = classify_location_type(wikidata_type_raw)
-        
-        # Si Wikidata retourne "autre" ou "ville", conserver le label original du DataFrame
-        # (sauf si le label original est vide)
+
+        # If Wikidata returns "autre" or "ville", keep the original DataFrame label
         if wikidata_type_classified in TYPES_TO_REPLACE_WITH_ORIGINAL and location_label:
             info.location_type = location_label
-            logger.info(f"    → Type Wikidata '{wikidata_type_classified}' ('{wikidata_type_raw}') → conservé label original '{location_label}'")
+            logger.info(f"    -> Wikidata type '{wikidata_type_classified}' ('{wikidata_type_raw}') -> kept original label '{location_label}'")
         else:
             info.location_type = wikidata_type_classified
-        
-        # Coordonnées
+
+        # Coordinates
         if search_result.get("coordinates"):
             info.latitude, info.longitude = parse_wikidata_coordinates(search_result["coordinates"])
-            logger.info(f"    → Trouvé: {info.wikidata_id} ({info.latitude}, {info.longitude}) - type: {info.location_type}")
+            logger.info(f"    -> Found: {info.wikidata_id} ({info.latitude}, {info.longitude}) - type: {info.location_type}")
         else:
-            logger.info(f"    → Trouvé: {info.wikidata_id} (sans coordonnées) - type: {info.location_type}")
-        
-        # Hiérarchie administrative
+            logger.info(f"    -> Found: {info.wikidata_id} (no coordinates) - type: {info.location_type}")
+
+        # Administrative hierarchy
         hierarchy = client.get_administrative_hierarchy(info.wikidata_id)
         info.hierarchy_departement = hierarchy.get("departement")
         info.hierarchy_province = hierarchy.get("province")
         info.hierarchy_region = hierarchy.get("region")
-        
+
         if hierarchy.get("region"):
-            logger.info(f"    → Hiérarchie: {info.hierarchy_departement} → {info.hierarchy_province} → {info.hierarchy_region}")
-        
-        # Voisins (si coordonnées disponibles)
+            logger.info(f"    -> Hierarchy: {info.hierarchy_departement} -> {info.hierarchy_province} -> {info.hierarchy_region}")
+
+        # Neighbors (if coordinates available)
         if info.latitude and info.longitude:
             neighbors = client.get_nearby_entities(info.latitude, info.longitude, NEIGHBOR_RADIUS_KM)
-            # Exclure le lieu lui-même
+            # Exclude the location itself
             info.neighbors = [n for n in neighbors if n["nom"].lower() != clean_name.lower()]
-            logger.info(f"    → {len(info.neighbors)} voisins dans {NEIGHBOR_RADIUS_KM}km")
+            logger.info(f"    -> {len(info.neighbors)} neighbors within {NEIGHBOR_RADIUS_KM}km")
     else:
-        # Lieu non trouvé sur Wikidata : conserver le label original
+        # Location not found on Wikidata: keep the original label
         if location_label:
             info.location_type = location_label
-            logger.warning(f"    → Non trouvé sur Wikidata, conservé label original '{location_label}'")
+            logger.warning(f"    -> Not found on Wikidata, kept original label '{location_label}'")
         else:
-            logger.warning(f"    → Non trouvé sur Wikidata")
-    
+            logger.warning(f"    -> Not found on Wikidata")
+
     return info
 
 
 def process_dataframe(df: pd.DataFrame, location_column: str = 'location') -> pd.DataFrame:
-    """
-    Traite un DataFrame et enrichit chaque lieu.
-    """
+    """Process a DataFrame and enrich each location."""
     client = WikidataGeoClient()
-    
-    # Extraire les lieux uniques
+
+    # Extract unique locations
     unique_locations = {}
     for idx, row in df.iterrows():
         try:
@@ -593,16 +580,16 @@ def process_dataframe(df: pd.DataFrame, location_column: str = 'location') -> pd
                 unique_locations[key] = loc
         except:
             pass
-    
-    logger.info(f"Traitement de {len(unique_locations)} lieux uniques...")
-    
-    # Traiter chaque lieu unique
+
+    logger.info(f"Processing {len(unique_locations)} unique locations...")
+
+    # Process each unique location
     location_data = {}
     for i, ((name, label), loc_info) in enumerate(unique_locations.items()):
         logger.info(f"\n[{i+1}/{len(unique_locations)}] {name} ({label})")
         location_data[(name, label)] = enrich_location(client, name, label)
-    
-    # Créer les nouvelles colonnes
+
+    # Create new columns
     new_columns = {
         "lieu_nettoye": [],
         "wikidata_id": [],
@@ -617,8 +604,8 @@ def process_dataframe(df: pd.DataFrame, location_column: str = 'location') -> pd
         "neighbors_10km_count": [],
         "neighbors_10km_types": []
     }
-    
-    # Remplir les colonnes pour chaque ligne
+
+    # Fill columns for each row
     for idx, row in df.iterrows():
         try:
             loc = ast.literal_eval(row[location_column])
@@ -626,7 +613,7 @@ def process_dataframe(df: pd.DataFrame, location_column: str = 'location') -> pd
             info = location_data.get(key)
         except:
             info = None
-        
+
         if info:
             new_columns["lieu_nettoye"].append(info.name)
             new_columns["wikidata_id"].append(info.wikidata_id)
@@ -639,8 +626,8 @@ def process_dataframe(df: pd.DataFrame, location_column: str = 'location') -> pd
             new_columns["hierarchy_pays"].append(info.hierarchy_pays)
             new_columns["neighbors_10km"].append(json.dumps(info.neighbors, ensure_ascii=False))
             new_columns["neighbors_10km_count"].append(len(info.neighbors))
-            
-            # Compter les types de voisins
+
+            # Count neighbor types
             type_counts = {}
             for n in info.neighbors:
                 t = n.get("type", "autre")
@@ -658,59 +645,59 @@ def process_dataframe(df: pd.DataFrame, location_column: str = 'location') -> pd
                     new_columns[col].append("Burkina Faso")
                 else:
                     new_columns[col].append(None)
-    
-    # Ajouter les colonnes au DataFrame
+
+    # Add columns to DataFrame
     for col_name, col_data in new_columns.items():
         df[col_name] = col_data
-    
+
     return df
 
 
 def print_statistics(df: pd.DataFrame):
-    """Affiche les statistiques de l'enrichissement."""
+    """Print enrichment statistics."""
     print("\n" + "=" * 70)
-    print("STATISTIQUES DE L'ENRICHISSEMENT")
+    print("ENRICHMENT STATISTICS")
     print("=" * 70)
-    
-    print(f"\n📊 GÉNÉRAL")
-    print(f"   Total enregistrements: {len(df)}")
-    print(f"   Lieux uniques: {df['lieu_nettoye'].nunique()}")
-    
-    print(f"\n📍 GÉOLOCALISATION")
-    print(f"   Avec coordonnées: {df['latitude'].notna().sum()} ({df['latitude'].notna().sum()*100/len(df):.1f}%)")
-    print(f"   Avec Wikidata ID: {df['wikidata_id'].notna().sum()} ({df['wikidata_id'].notna().sum()*100/len(df):.1f}%)")
-    
-    print(f"\n🏛️ HIÉRARCHIE ADMINISTRATIVE")
-    print(f"   Avec région: {df['hierarchy_region'].notna().sum()} ({df['hierarchy_region'].notna().sum()*100/len(df):.1f}%)")
-    print(f"   Avec province: {df['hierarchy_province'].notna().sum()} ({df['hierarchy_province'].notna().sum()*100/len(df):.1f}%)")
-    print(f"   Avec département: {df['hierarchy_departement'].notna().sum()} ({df['hierarchy_departement'].notna().sum()*100/len(df):.1f}%)")
-    
-    print(f"\n🔗 VOISINAGE ({NEIGHBOR_RADIUS_KM} KM)")
-    print(f"   Lieux avec voisins: {(df['neighbors_10km_count'] > 0).sum()}")
-    print(f"   Moyenne voisins/lieu: {df['neighbors_10km_count'].mean():.1f}")
-    print(f"   Max voisins: {df['neighbors_10km_count'].max()}")
-    
-    # Répartition par région
-    print(f"\n🗺️ RÉPARTITION PAR RÉGION")
+
+    print(f"\nGENERAL")
+    print(f"   Total records: {len(df)}")
+    print(f"   Unique locations: {df['lieu_nettoye'].nunique()}")
+
+    print(f"\nGEOLOCATION")
+    print(f"   With coordinates: {df['latitude'].notna().sum()} ({df['latitude'].notna().sum()*100/len(df):.1f}%)")
+    print(f"   With Wikidata ID: {df['wikidata_id'].notna().sum()} ({df['wikidata_id'].notna().sum()*100/len(df):.1f}%)")
+
+    print(f"\nADMINISTRATIVE HIERARCHY")
+    print(f"   With region: {df['hierarchy_region'].notna().sum()} ({df['hierarchy_region'].notna().sum()*100/len(df):.1f}%)")
+    print(f"   With province: {df['hierarchy_province'].notna().sum()} ({df['hierarchy_province'].notna().sum()*100/len(df):.1f}%)")
+    print(f"   With departement: {df['hierarchy_departement'].notna().sum()} ({df['hierarchy_departement'].notna().sum()*100/len(df):.1f}%)")
+
+    print(f"\nNEIGHBORHOOD ({NEIGHBOR_RADIUS_KM} KM)")
+    print(f"   Locations with neighbors: {(df['neighbors_10km_count'] > 0).sum()}")
+    print(f"   Average neighbors/location: {df['neighbors_10km_count'].mean():.1f}")
+    print(f"   Max neighbors: {df['neighbors_10km_count'].max()}")
+
+    # Distribution by region
+    print(f"\nDISTRIBUTION BY REGION")
     region_counts = df['hierarchy_region'].value_counts().head(10)
     for region, count in region_counts.items():
-        print(f"   {region or 'Non défini'}: {count}")
-    
-    # Répartition par type géographique
-    print(f"\n📌 RÉPARTITION PAR TYPE GÉOGRAPHIQUE")
+        print(f"   {region or 'Undefined'}: {count}")
+
+    # Distribution by geographic type
+    print(f"\nDISTRIBUTION BY GEOGRAPHIC TYPE")
     type_counts = df['type_geo'].value_counts()
     for geo_type, count in type_counts.items():
-        print(f"   {geo_type or 'Non défini'}: {count}")
+        print(f"   {geo_type or 'Undefined'}: {count}")
 
 
 def main():
-    """Fonction principale."""
+    """Main entry point."""
     print("=" * 70)
-    print("ENRICHISSEMENT GÉOGRAPHIQUE VIA WIKIDATA")
-    print("Burkina Faso - Analyse de sécurité alimentaire")
+    print("GEOGRAPHIC ENRICHMENT VIA WIKIDATA")
+    print("Burkina Faso - Food Security Analysis")
     print("=" * 70)
-    
-    # Arguments en ligne de commande
+
+    # Command-line arguments
     if len(sys.argv) >= 3:
         input_file = sys.argv[1]
         output_file = sys.argv[2]
@@ -718,44 +705,43 @@ def main():
         input_file = sys.argv[1]
         output_file = input_file.replace('.csv', '_enriched.csv')
     else:
-        # Fichier par défaut
         input_file = 'talamasca.csv'
         output_file = 'df_processed_enriched.csv'
-    
-    print(f"\n📂 Fichier d'entrée: {input_file}")
-    print(f"📂 Fichier de sortie: {output_file}")
-    
-    # Charger les données
-    print("\n1. Chargement des données...")
+
+    print(f"\nInput file: {input_file}")
+    print(f"Output file: {output_file}")
+
+    # Load data
+    print("\n1. Loading data...")
     try:
         df = pd.read_csv(input_file)
-        print(f"   ✓ {len(df)} enregistrements chargés")
+        print(f"   {len(df)} records loaded")
     except FileNotFoundError:
-        print(f"   ✗ Fichier non trouvé: {input_file}")
+        print(f"   File not found: {input_file}")
         sys.exit(1)
-    
-    # Vérifier la colonne location
+
+    # Check location column
     if 'location' not in df.columns:
-        print("   ✗ Colonne 'location' non trouvée dans le CSV")
+        print("   Column 'location' not found in CSV")
         sys.exit(1)
-    
-    # Traiter le DataFrame
-    print("\n2. Enrichissement via Wikidata...")
-    print("   (Cela peut prendre plusieurs minutes selon le nombre de lieux)")
+
+    # Process the DataFrame
+    print("\n2. Enriching via Wikidata...")
+    print("   (This may take several minutes depending on the number of locations)")
     df_enriched = process_dataframe(df)
-    
-    # Sauvegarder
-    print(f"\n3. Sauvegarde: {output_file}")
+
+    # Save
+    print(f"\n3. Saving: {output_file}")
     df_enriched.to_csv(output_file, index=False, encoding='utf-8')
-    print("   ✓ Fichier sauvegardé")
-    
-    # Statistiques
+    print("   File saved")
+
+    # Statistics
     print_statistics(df_enriched)
-    
+
     print("\n" + "=" * 70)
-    print("ENRICHISSEMENT TERMINÉ")
+    print("ENRICHMENT COMPLETE")
     print("=" * 70)
-    
+
     return df_enriched
 
 
