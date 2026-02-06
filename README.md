@@ -861,10 +861,10 @@ api.upload_folder(
 If you use this code, data, or model in your research, please cite:
 
 ```bibtex
-@inproceedings{author2026stkgfs,
+@inproceedings{ngom2026stkgfs,
   title={Spatio-Temporal Knowledge Graph from Unstructured Texts:
          A Multi-Scale Approach for Food Security Monitoring},
-  author={[Authors]},
+  author={Ngom, Charles Abdoulaye and Rajaonarivo, Landy and Valentin, Sarah and Teisseire, Maguelonne},
   booktitle={AGILE: GIScience Series},
   year={2026},
   doi={[DOI]}
@@ -891,4 +891,8 @@ This project is licensed under the MIT License -- see the [LICENSE](LICENSE) fil
 
 ## Contact
 
-For questions about this research, please contact: [email address]
+For questions about this research, please contact:
+- @CharlemagneBrain: [charles.ngom@inrae.fr](mailto:charles.ngom@inrae.fr)
+- Landy Rajaonarivo: [landy.rajaonarivo@inrae.fr](mailto:landy.rajaonarivo@inrae.fr)
+- Sarah Valentin: [sarah.valentin@cirad.fr](mailto:sarah.valentin@cirad.fr)
+- Maguelonne Teisseire: [maguelonne.teisseire@inrae.fr](mailto:maguelonne.teisseire@inrae.fr)
