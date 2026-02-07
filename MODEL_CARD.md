@@ -255,14 +255,7 @@ This model is intended for research and humanitarian applications:
 If you use this model in your research, please cite:
 
 ```bibtex
-@inproceedings{ngom2026stkgfs,
-  title={Spatio-Temporal Knowledge Graph from Unstructured Texts:
-         A Multi-Scale Approach for Food Security Monitoring},
-  author={Ngom, Charles Abdoulaye and Rajaonarivo, Landy and Valentin, Sarah and Teisseire, Maguelonne},
-  booktitle={AGILE: GIScience Series},
-  year={2026},
-  doi={[DOI]}
-}
+
 ```
 
 ## Contact

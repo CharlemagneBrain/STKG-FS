@@ -19,7 +19,6 @@ A framework for constructing spatio-temporal knowledge graphs from French news a
 - [Pre-trained Models](#pre-trained-models)
 - [Limitations](#limitations)
 - [Citation](#citation)
-- [License](#license)
 - [Acknowledgments](#acknowledgments)
 
 ---
@@ -880,9 +879,6 @@ for file_path in dataset_files:
     )
 ```
 
-**Step 3: Create a model card**
-
-Create a `README.md` file in the model repository with the model card (see [Model Card Template](#model-card-template) below).
 
 ---
 
@@ -890,9 +886,8 @@ Create a `README.md` file in the model repository with the model card (see [Mode
 
 1. **Lexicon-based detection**: May produce false positives when food security terminology appears in non-relevant contexts (policy discussions, historical references, prevention campaigns). The 53.1% non-relevance rate reflects this challenge.
 2. **Media coverage bias**: Ouagadougou (402 occurrences) and major cities receive disproportionate coverage compared to rural areas, reflecting the structure of the press corpus rather than actual risk distribution.
-3. **Spatial projection window**: The 2-sentence context window for spatial projection may miss longer-range location references, leading to over-aggregation to capital or country level.
-4. **Single country focus**: The model is trained specifically on the Burkina Faso administrative hierarchy and may not generalize to other West African countries without retraining.
-5. **Temporal scope**: The current corpus covers only 2009 articles. Extending to multiple years would require additional data collection.
+3. **Single country focus**: The model is trained specifically on the Burkina Faso administrative hierarchy and may not generalize to other West African countries without retraining.
+4. **Temporal scope**: The current corpus covers only 2009 articles. Extending to multiple years would require additional data collection.
 
 ---
 
@@ -901,21 +896,8 @@ Create a `README.md` file in the model repository with the model card (see [Mode
 If you use this code, data, or model in your research, please cite:
 
 ```bibtex
-@inproceedings{ngom2026stkgfs,
-  title={Spatio-Temporal Knowledge Graph from Unstructured Texts:
-         A Multi-Scale Approach for Food Security Monitoring},
-  author={Ngom, Charles Abdoulaye and Rajaonarivo, Landy and Valentin, Sarah and Teisseire, Maguelonne},
-  booktitle={AGILE: GIScience Series},
-  year={2026},
-  doi={[DOI]}
-}
+
 ```
-
----
-
-## License
-
-This project is licensed under the MIT License -- see the [LICENSE](LICENSE) file for details.
 
 ---
 
