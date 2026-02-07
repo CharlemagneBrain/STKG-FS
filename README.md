@@ -26,7 +26,9 @@ A framework for constructing spatio-temporal knowledge graphs from French news a
 
 ## Overview
 
-Food security monitoring in West Africa requires timely, fine-grained, and interpretable information from diverse sources. This project implements an integrated NLP and knowledge graph pipeline that extracts, structures, and analyzes food security-related information from **15,000 French press articles** published in 2009 from Burkina Faso.
+Food security monitoring in West Africa requires timely, fine-grained, and interpretable information from diverse sources. This project implements an integrated NLP and knowledge graph pipeline that extracts, structures, and analyzes food security-related information from French press articles published in 2009 from Burkina Faso.
+
+**Dataset scope**: The CamemBERT NER model was trained on **15,000 articles**. The final knowledge graph was extracted from **1,000 articles** (a subset used for validation and graph construction).
 
 The approach combines three specialized components:
 
@@ -101,10 +103,7 @@ source venv/bin/activate        # Linux/Mac
 # 3. Install Python dependencies
 pip install -r requirements.txt
 
-# 4. Download spaCy French model
-python -m spacy download fr_core_news_sm
-
-# 5. Verify Java installation (required for HeidelTime)
+# 4. Verify Java installation (required for HeidelTime)
 java -version
 ```
 
@@ -135,7 +134,6 @@ pip install py-heideltime
 | `cykhash` / `pyrobuf` build failure | These are optional dependencies. Core functionality is unaffected. |
 | HeidelTime `FileNotFoundError` | Update `treeTaggerHome` path in `config.props` |
 | CUDA out of memory | Reduce `per_device_train_batch_size` to 16 or 8 in training arguments |
-| spaCy model not found | Run `python -m spacy download fr_core_news_sm` |
 | Neo4j connection error | Ensure Neo4j is running and credentials are correct |
 
 ---
@@ -200,7 +198,8 @@ stkgfs/
 
 ### Source Corpus
 
-- **15,000 unannotated French news articles** published in 2009
+- **15,000 French news articles** published in 2009 (used for NER model training)
+- **1,000 articles** used for knowledge graph extraction and validation
 - Collected from major West African news outlets (LeFaso.net, Burkina24)
 - Articles segmented into overlapping windows (configurable length and overlap)
 
@@ -764,23 +763,24 @@ These differences do not affect the conclusions or interpretations presented in 
 
 ## Pre-trained Models
 
-### HuggingFace Model
+### HuggingFace Model and Datasets
 
-The fine-tuned CamemBERT model for Burkina Faso spatial NER will be available at:
+The fine-tuned CamemBERT model and training datasets are available at:
 
-**[HuggingFace Model Hub -- Link to be added upon publication]**
+**Model**: [`CharlesAbdoulaye/BF_NER`](https://huggingface.co/CharlesAbdoulaye/BF_NER)
+**Datasets**: [`CharlesAbdoulaye/BF_NER_datasets`](https://huggingface.co/datasets/CharlesAbdoulaye/BF_NER_datasets) (coming soon)
 
 #### Model Card Summary
 
 | Property | Value |
 |----------|-------|
-| **Model name** | CamemBERT-BurkinaFaso-NER |
+| **Model name** | BF_NER (Burkina Faso Named Entity Recognition) |
 | **Base model** | `camembert-base` |
 | **Task** | Token classification (NER) |
 | **Language** | French |
 | **Entity types** | country, region, province, departement, village |
-| **Training data** | 59,900 sentences (BIO-tagged, distant supervision) |
-| **F1-Score** | 0.96--0.99 per entity type |
+| **Training data** | 59,900 sentences (BIO-tagged, distant supervision from 15,000 articles) |
+| **F1-Score** | 0.96--0.99 per entity type (micro avg: 0.98) |
 | **License** | MIT |
 
 #### Usage Example
@@ -790,8 +790,8 @@ from transformers import CamembertTokenizerFast, CamembertForTokenClassification
 import torch
 
 # Load model and tokenizer
-tokenizer = CamembertTokenizerFast.from_pretrained("username/CamemBERT-BurkinaFaso-NER")
-model = CamembertForTokenClassification.from_pretrained("username/CamemBERT-BurkinaFaso-NER")
+tokenizer = CamembertTokenizerFast.from_pretrained("CharlesAbdoulaye/BF_NER")
+model = CamembertForTokenClassification.from_pretrained("CharlesAbdoulaye/BF_NER")
 
 # Entity labels
 label_list = [
@@ -829,20 +829,60 @@ Koubri: B-village
 
 #### Publishing to HuggingFace
 
+**Step 1: Upload the fine-tuned model**
+
+```bash
+# Install huggingface_hub
+pip install huggingface_hub
+
+# Login to HuggingFace (you'll be prompted for your token)
+huggingface-cli login
+```
+
 ```python
 from huggingface_hub import HfApi, create_repo
 
-# Create repository
-create_repo("username/CamemBERT-BurkinaFaso-NER", private=False)
+# Create model repository
+create_repo("CharlesAbdoulaye/BF_NER", repo_type="model", private=False, exist_ok=True)
 
-# Upload model files
+# Upload model checkpoint
 api = HfApi()
 api.upload_folder(
-    folder_path="path/to/model/checkpoint",
-    repo_id="username/CamemBERT-BurkinaFaso-NER",
+    folder_path="/data/charles/agile/camembert-ner-finetuned/checkpoint-15000",
+    repo_id="CharlesAbdoulaye/BF_NER",
     repo_type="model"
 )
 ```
+
+**Step 2: Upload training datasets**
+
+```python
+from huggingface_hub import HfApi, create_repo
+import os
+
+# Create dataset repository
+create_repo("CharlesAbdoulaye/BF_NER_datasets", repo_type="dataset", private=False, exist_ok=True)
+
+# Upload each dataset file
+api = HfApi()
+dataset_files = [
+    "Fine-Tuning/annotations/train_extended_bio_feb.json",
+    "Fine-Tuning/annotations/val_extended_bio_feb.json",
+    "Fine-Tuning/annotations/test_extended_bio_feb.json"
+]
+
+for file_path in dataset_files:
+    api.upload_file(
+        path_or_fileobj=file_path,
+        path_in_repo=os.path.basename(file_path),
+        repo_id="CharlesAbdoulaye/BF_NER_datasets",
+        repo_type="dataset"
+    )
+```
+
+**Step 3: Create a model card**
+
+Create a `README.md` file in the model repository with the model card (see [Model Card Template](#model-card-template) below).
 
 ---
 
