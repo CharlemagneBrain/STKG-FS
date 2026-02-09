@@ -732,11 +732,11 @@ Fine-tuned CamemBERT evaluated on a held-out test set containing ~20% unseen ent
 | **Micro avg** | **0.98** | **0.98** | **0.98** | **16,602** |
 
 **Comparison with baselines** (on 1,000 test articles):
-- Baseline CamemBERT (no fine-tuning): P=0.87, R=0.58, **F1=0.70**
-- GLiNER (zero-shot): P=0.82, R=0.77, **F1=0.79**
-- Fine-tuned CamemBERT: P=0.98, R=0.98, **F1=0.98**
 
-### Triplet Formation Evaluation (Table 2)
+- CamemBERT (fine-tuning on general Location): P=0.41, R=0.81, **F1=0.55**
+- GLiNER (zero-shot): P=0.66, R=0.63, **F1=0.65**
+
+### Triplet Formation Evaluation 
 
 Expert annotation campaign on 1,133 extracted triplets:
 
