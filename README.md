@@ -4,7 +4,7 @@ A framework for constructing spatio-temporal knowledge graphs from French news a
 
 > **Paper**: *Spatio-Temporal Knowledge Graph from Unstructured Texts: A Multi-Scale Approach for Food Security Monitoring*
 > **Authors**: Charles Abdoulaye Ngom, Landy Rajaonarivo, Sarah Valentin, Maguelonne Teisseire
-> Published in **AGILE: GIScience Series, 2026**
+> Accepted in **AGILE: GIScience Series, 2026**
 >
 > **Model DOI**: [10.57967/hf/7766](https://doi.org/10.57967/hf/7766) | **Dataset DOI**: [10.57967/hf/7767](https://doi.org/10.57967/hf/7767)
 
