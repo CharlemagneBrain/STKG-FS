@@ -971,7 +971,7 @@ If you use this code, data, or model in your research, please cite:
   author={Ngom, Charles Abdoulaye and Rajaonarivo, Landy and Valentin, Sarah and Teisseire, Maguelonne},
   journal={AGILE: GIScience Series},
   year={2026},
-  doi={10.57967/hf/7766}
+
 }
 ```
 
