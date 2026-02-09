@@ -247,8 +247,6 @@ This model is intended for research and humanitarian applications:
 - ✅ Food security monitoring and early warning systems
 - ✅ Geographic information extraction for development organizations
 - ✅ Academic research on crisis mapping and NLP
-- ❌ Surveillance or tracking of individuals
-- ❌ Military targeting or security operations without ethical review
 
 ## Citation
 

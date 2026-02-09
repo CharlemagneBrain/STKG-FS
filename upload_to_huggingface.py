@@ -1,13 +1,4 @@
 #!/usr/bin/env python3
-"""
-Script to upload the BF_NER model and datasets to HuggingFace Hub.
-
-Usage:
-    1. Install dependencies: pip install huggingface_hub
-    2. Login: huggingface-cli login
-    3. Run: python upload_to_huggingface.py
-"""
-
 import os
 from huggingface_hub import HfApi, create_repo
 from pathlib import Path
@@ -187,7 +178,6 @@ MIT License
         print("   Dataset card uploaded")
 
         print(f"\nDATASET UPLOAD COMPLETE")
-        print(f"View at: https://huggingface.co/datasets/{repo_id}")
         return True
 
     except Exception as e:
@@ -198,7 +188,7 @@ MIT License
 def main():
     """Main execution."""
     print("\n" + "=" * 70)
-    print("HUGGINGFACE UPLOAD SCRIPT")
+
     print("BF_NER Model and Datasets")
     print("=" * 70)
 
@@ -218,7 +208,7 @@ def main():
     # Upload datasets
     dataset_success = upload_datasets()
 
-    # Summary
+
     print("\n" + "=" * 70)
     print("UPLOAD SUMMARY")
     print("=" * 70)
@@ -227,10 +217,6 @@ def main():
 
     if model_success and dataset_success:
         print("\nAll uploads completed successfully!")
-        print("\nNext steps:")
-        print("  1. Visit https://huggingface.co/CharlesAbdoulaye/BF_NER")
-        print("  2. Review the model card and add any additional information")
-        print("  3. Test the model with the usage examples")
     else:
         print("\nSome uploads failed. Please check the errors above.")
 

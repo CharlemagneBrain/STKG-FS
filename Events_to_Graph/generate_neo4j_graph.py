@@ -7,9 +7,6 @@ from datetime import datetime
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple, Optional, Any
 
-# =============================================================================
-# CONFIGURATION
-# =============================================================================
 
 REQUIRED_COLUMNS = [
     'term', 'theme', 'concept', 'phase', 'lieu_nettoye', 'type_geo',
@@ -18,17 +15,13 @@ REQUIRED_COLUMNS = [
     'hierarchy_departement', 'neighbors_10km', 'publication_date'
 ]
 
-# Mapping of old region names to new official names
+
 REGION_NAME_MAPPING = {
     'Cascades': 'Tannounyan',
 }
 
-# =============================================================================
-# V5 FIX: Mapping of internal region names to official names
-# Kadiogo is a PROVINCE of the Centre region, not a region itself
-# =============================================================================
+
 REGION_INTERNAL_TO_OFFICIAL = {
-    # Internal names (watershed-based) -> Official names
     'Bankui': 'Boucle du Mouhoun',
     'Kuilsé': 'Centre-Nord',
     'Nakambé': 'Centre-Est',
@@ -43,7 +36,6 @@ REGION_INTERNAL_TO_OFFICIAL = {
     'Liptako': 'Sahel',
     'Goulmou': 'Est',
     'Guiriko': 'Hauts-Bassins',
-    # V5 FIX: Kadiogo is a province, not a region
     'Kadiogo': 'Centre',
 }
 
@@ -52,12 +44,9 @@ TYPE_GEO_CORRECTIONS = {
     'Cascades': 'region',
 }
 
-# =============================================================================
-# UTILITY FUNCTIONS
-# =============================================================================
 
 def escape_cypher_string(s: str) -> str:
-    """Escape special characters for Cypher queries."""
+
     if pd.isna(s):
         return ""
     s = str(s)
@@ -157,9 +146,7 @@ def format_event_title(term: str, lieu: str, dt: Optional[datetime]) -> str:
     return f"{term_clean}_{lieu_clean}_{year_month}"
 
 
-# =============================================================================
-# PREPROCESSING: Data normalization
-# =============================================================================
+
 
 def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """Preprocess the DataFrame: normalize location names and correct types."""
@@ -196,7 +183,7 @@ def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         for _, row in type_corrections[['lieu_nettoye_original', 'type_geo_original', 'type_geo']].drop_duplicates().iterrows():
             print(f"    - '{row['lieu_nettoye_original']}': '{row['type_geo_original']}' -> '{row['type_geo']}'")
 
-    # V5: Log region name corrections
+    # Log region name corrections
     region_corrections = df[df['hierarchy_region'] != df['hierarchy_region_original']]
     if len(region_corrections) > 0:
         print(f"  Region name corrections: {len(region_corrections)} entries")
@@ -207,9 +194,7 @@ def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# =============================================================================
-# Cypher Graph Generator - Version 5
-# =============================================================================
+
 
 class Neo4jGraphGeneratorV5:
 
@@ -228,23 +213,19 @@ class Neo4jGraphGeneratorV5:
         self.synchronous_relations = []
         self.precedes_relations = []
         self.location_hierarchy_relations = []
-        self.location_neighbor_relations = []
 
     def process(self):
-        """Process the DataFrame and generate the graph."""
-        print("1. Extracting and aggregating entities...")
+
         self._extract_and_aggregate_entities()
 
-        print("2. Creating temporal relations (IS_RECURRENT, IS_SYNCHRONOUS, PRECEDES)...")
         self._create_temporal_relations()
 
-        print("3. Creating spatial relations...")
         self._create_spatial_relations()
 
         self._print_statistics()
 
     def _extract_and_aggregate_entities(self):
-        """Extract unique entities with correct aggregation."""
+
         event_counter = 0
 
         grouped = self.df.groupby(['term', 'lieu_nettoye', 'date_x'])
@@ -342,14 +323,13 @@ class Neo4jGraphGeneratorV5:
                 self.event_time_relations.append((event_id, date_key))
 
     def _create_temporal_relations(self):
-        """Create temporal relations between events."""
+
         # Group events by location+risk (for IS_RECURRENT)
         events_by_lieu_risk = defaultdict(list)
         # Group by location+date (for IS_SYNCHRONOUS)
         events_by_lieu_date = defaultdict(list)
         # Group by location+year (for PRECEDES)
         events_by_lieu_year = defaultdict(list)
-
         for event_id, event_data in self.events.items():
             lieu = event_data["lieu"]
             risk = event_data["term"]
@@ -414,7 +394,7 @@ class Neo4jGraphGeneratorV5:
                                 seen_precedes.add(key)
 
     def _create_spatial_relations(self):
-        """Create spatial relations."""
+
         parent_locations = {}
 
         for loc_name, loc_data in list(self.locations.items()):
@@ -512,45 +492,11 @@ class Neo4jGraphGeneratorV5:
                         self.location_hierarchy_relations.append((loc_name, reg, "IS_FROM_REGION"))
                         seen_hierarchy.add(key)
 
-        # IS_NEAR_TO relations
-        seen_neighbors = set()
-        locations_copy = dict(self.locations)
-        for loc_name, loc_data in locations_copy.items():
-            neighbors_raw = loc_data.get("neighbors_raw", "[]")
-
-            if neighbors_raw and neighbors_raw != "[]":
-                try:
-                    neighbors = json.loads(neighbors_raw)
-                    for neighbor in neighbors[:10]:
-                        neighbor_name = escape_cypher_string(neighbor.get("nom", ""))
-                        distance = neighbor.get("distance_km", 0)
-                        neighbor_type = neighbor.get("type", "autre")
-
-                        if neighbor_name:
-                            if neighbor_name not in self.locations:
-                                self.locations[neighbor_name] = {
-                                    "name": neighbor_name,
-                                    "type": escape_cypher_string(neighbor_type),
-                                    "wikidata_id": "",
-                                    "latitude": neighbor.get("lat"),
-                                    "longitude": neighbor.get("lon"),
-                                    "region": "",
-                                    "province": "",
-                                    "departement": "",
-                                    "neighbors_raw": "[]"
-                                }
-
-                            key = tuple(sorted([loc_name, neighbor_name]))
-                            if key not in seen_neighbors and loc_name != neighbor_name:
-                                self.location_neighbor_relations.append((loc_name, neighbor_name, distance))
-                                seen_neighbors.add(key)
-                except:
-                    pass
 
     def _print_statistics(self):
-        """Print graph statistics."""
+
         print("\n" + "=" * 60)
-        print("GRAPH STATISTICS (V5)")
+        print("GRAPH STATISTICS")
         print("=" * 60)
         print(f"Event nodes: {len(self.events)}")
         print(f"Risk nodes: {len(self.risks)}")
@@ -588,7 +534,7 @@ class Neo4jGraphGeneratorV5:
         print(f"IS_FROM_DEPARTEMENT: {hierarchy_counts.get('IS_FROM_DEPARTEMENT', 0)}")
         print(f"IS_FROM_PROVINCE: {hierarchy_counts.get('IS_FROM_PROVINCE', 0)}")
         print(f"IS_FROM_REGION: {hierarchy_counts.get('IS_FROM_REGION', 0)}")
-        print(f"IS_NEAR_TO: {len(self.location_neighbor_relations)}")
+
 
 
     def generate_cypher(self) -> str:
@@ -596,8 +542,6 @@ class Neo4jGraphGeneratorV5:
         lines = []
 
 
-
-        # Constraints and indexes
         lines.append("// ===== CONSTRAINTS AND INDEXES =====")
         lines.append("CREATE CONSTRAINT event_id IF NOT EXISTS FOR (e:Event) REQUIRE e.id IS UNIQUE;")
         lines.append("CREATE CONSTRAINT risk_name IF NOT EXISTS FOR (r:Risk) REQUIRE r.name IS UNIQUE;")
@@ -609,14 +553,13 @@ class Neo4jGraphGeneratorV5:
         lines.append("CREATE INDEX time_year IF NOT EXISTS FOR (t:Time) ON (t.year);")
         lines.append("")
 
-        # Risk nodes
+
         lines.append("// ===== RISK NODES =====")
         for risk_name, risk_data in self.risks.items():
             lines.append(f"MERGE (r:Risk {{name: '{risk_data['name']}'}})")
             lines.append(f"SET r.theme = '{risk_data['theme']}', r.concept = '{risk_data['concept']}', r.phase = '{risk_data['phase']}';")
         lines.append("")
 
-        # Location nodes
         lines.append("// ===== LOCATION NODES =====")
         for loc_name, loc_data in self.locations.items():
             lat_str = f", l.latitude = {loc_data['latitude']}" if loc_data['latitude'] else ""
@@ -626,7 +569,6 @@ class Neo4jGraphGeneratorV5:
             lines.append(f"SET l.type = '{loc_data['type']}', l.wikidata_id = '{loc_data['wikidata_id']}'{lat_str}{lon_str};")
         lines.append("")
 
-        # Time nodes
         lines.append("// ===== TIME NODES =====")
         for date_str, time_data in self.times.items():
             year_str = f", t.year = {time_data['year']}" if time_data['year'] else ""
@@ -637,7 +579,6 @@ class Neo4jGraphGeneratorV5:
             lines.append(f"SET t.datetime = '{time_data['datetime']}'{year_str}{month_str}{day_str};")
         lines.append("")
 
-        # Event nodes
         lines.append("// ===== EVENT NODES =====")
         for event_id, event_data in self.events.items():
             frequency_by_article_json = json.dumps(event_data['frequency_by_article'], ensure_ascii=False).replace("'", "\\'")
@@ -655,28 +596,25 @@ class Neo4jGraphGeneratorV5:
             lines.append(f"    e.contexts = '{contexts_json}';")
         lines.append("")
 
-        # Event -> Risk relations (CONCERNS with article_count)
         lines.append("// ===== EVENT -> RISK RELATIONS (CONCERNS) =====")
         for event_id, risk_name, article_count in self.event_risk_relations:
             lines.append(f"MATCH (e:Event {{id: '{event_id}'}}), (r:Risk {{name: '{risk_name}'}})")
             lines.append(f"MERGE (e)-[:CONCERNS {{article_count: {article_count}}}]->(r);")
         lines.append("")
 
-        # Event -> Location relations
         lines.append("// ===== EVENT -> LOCATION RELATIONS (LOCATED_IN) =====")
         for event_id, loc_name in self.event_location_relations:
             lines.append(f"MATCH (e:Event {{id: '{event_id}'}}), (l:Location {{name: '{loc_name}'}})")
             lines.append("MERGE (e)-[:LOCATED_IN]->(l);")
         lines.append("")
 
-        # Event -> Time relations
         lines.append("// ===== EVENT -> TIME RELATIONS (OCCURRED_ON) =====")
         for event_id, date_str in self.event_time_relations:
             lines.append(f"MATCH (e:Event {{id: '{event_id}'}}), (t:Time {{datetime: '{date_str}'}})")
             lines.append("MERGE (e)-[:OCCURRED_ON]->(t);")
         lines.append("")
 
-        # IS_RECURRENT relations (with duration_days)
+
         lines.append("// ===== IS_RECURRENT RELATIONS (same risk, same location, different dates) =====")
         lines.append("// duration_days: number of days between the two occurrences")
         for e1_id, e2_id, duration_days in self.recurrent_relations:
@@ -684,7 +622,6 @@ class Neo4jGraphGeneratorV5:
             lines.append(f"MERGE (e1)-[:IS_RECURRENT {{duration_days: {duration_days}}}]->(e2);")
         lines.append("")
 
-        # IS_SYNCHRONOUS relations (BIDIRECTIONAL - V5)
         lines.append("// ===== IS_SYNCHRONOUS RELATIONS (same location, same date, different risks) =====")
         lines.append("// V5: BIDIRECTIONAL relation - created in both directions")
         lines.append("// Two events occurring on the same day at the same location without causal relation")
@@ -694,7 +631,6 @@ class Neo4jGraphGeneratorV5:
             lines.append("MERGE (e2)-[:IS_SYNCHRONOUS]->(e1);")
         lines.append("")
 
-        # PRECEDES relations (with duration in days)
         lines.append("// ===== PRECEDES RELATIONS (same location, different risks, different dates) =====")
         lines.append("// duration_days: number of days between the two events")
         for e1_id, e2_id, duration_days in self.precedes_relations:
@@ -702,25 +638,16 @@ class Neo4jGraphGeneratorV5:
             lines.append(f"MERGE (e1)-[:PRECEDES {{duration_days: {duration_days}}}]->(e2);")
         lines.append("")
 
-        # Spatial hierarchy relations
+
         lines.append("// ===== SPATIAL HIERARCHY RELATIONS =====")
         for loc1, loc2, rel_type in self.location_hierarchy_relations:
             lines.append(f"MATCH (l1:Location {{name: '{loc1}'}}), (l2:Location {{name: '{loc2}'}})")
             lines.append(f"MERGE (l1)-[:{rel_type}]->(l2);")
         lines.append("")
 
-        # IS_NEAR_TO relations
-        lines.append("// ===== IS_NEAR_TO RELATIONS =====")
-        for loc1, loc2, distance in self.location_neighbor_relations[:500]:
-            lines.append(f"MATCH (l1:Location {{name: '{loc1}'}}), (l2:Location {{name: '{loc2}'}})")
-            lines.append(f"MERGE (l1)-[:IS_NEAR_TO {{distance_km: {distance}}}]->(l2);")
-
         return "\n".join(lines)
 
 
-# =============================================================================
-# MAIN FUNCTION
-# =============================================================================
 
 def main():
 

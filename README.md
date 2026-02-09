@@ -416,8 +416,6 @@ The knowledge graph contains **4 node types** and **3 relationship categories**:
    - `IS_FROM_DEPARTEMENT`: Village -> Department
    - `IS_FROM_PROVINCE`: Department -> Province
    - `IS_FROM_REGION`: Province -> Region
-   - `IS_NEAR_TO`: Location <-> Location (with `distance_km`)
-
 3. **Temporal inference relationships** (Event <-> Event):
    - `IS_RECURRENT`: Same risk + same location, different dates (with `duration_days`)
    - `IS_SYNCHRONOUS`: Same location + same date, different risks (bidirectional)
@@ -434,7 +432,6 @@ MATCH (n)-[rec:PRECEDES]->(n1:Event)
 MATCH (n)-[irec:IS_RECURRENT]->(n2:Event)
 MATCH (n2)-[on2:OCCURRED_ON]->(t2:Time)
 MATCH (n2:Event)-[rel3:IS_SYNCHRONOUS]->()
-MATCH (l)-[nr:IS_NEAR_TO]->(l1:Location)
 MATCH (l)-[isf:IS_FROM_PROVINCE]->(l4:Location)
 MATCH (n1)-[loacf:OCCURRED_ON]->(to:Time)
 MATCH (n1)-[css:CONCERNS]->(rss:Risk)
@@ -442,7 +439,7 @@ MATCH (n)-[cs:CONCERNS]->(rs:Risk)
 MATCH (n2)-[cr:CONCERNS]->(rr:Risk)
 MATCH (l5)-[dept:IS_FROM_DEPARTEMENT]->(l)
 
-RETURN n, c, r,li, l, on, t, rec, n1, nr, l1, n2, irec, on2, t2, isf, l4, loacf, to, css, rss, cs, rs, cr, rr, 
+RETURN n, c, r, li, l, on, t, rec, n1, n2, irec, on2, t2, isf, l4, loacf, to, css, rss, cs, rs, cr, rr, l5, dept
 ```
 ![Knowledge Graph Overview](images/extract_kg_overview.png)
 
@@ -516,16 +513,10 @@ WITH flood_events, flood_triplets, sync_triplets, before_triplets, l_ouaga,
 OPTIONAL MATCH (l_ouaga)-[hp:IS_FROM_PROVINCE]->(province:Location)
 OPTIONAL MATCH (province)-[hr:IS_FROM_REGION]->(region:Location)
 
-// --- BLOC 6: 3 voisins IS_NEAR_TO ---
-OPTIONAL MATCH (l_ouaga)-[near:IS_NEAR_TO]-(voisin:Location)
-WITH flood_events, flood_triplets, sync_triplets, before_triplets, after_triplets,
-     l_ouaga, province, hp, region, hr,
-     collect({relation: near, voisin: voisin})[0..3] AS voisins_3
-
-// --- BLOC 7: Relation IS_FROM_VILLAGE entre Ouagadougou et ses villages ---
+// --- BLOC 6: Relation IS_FROM_VILLAGE entre Ouagadougou et ses villages ---
 OPTIONAL MATCH (l_village:Location)-[hv:IS_FROM_VILLAGE]->(l_ouaga)
 WITH flood_events, flood_triplets, sync_triplets, before_triplets, after_triplets,
-     l_ouaga, province, hp, region, hr, voisins_3,
+     l_ouaga, province, hp, region, hr,
      collect({relation: hv, village: l_village})[0..3] AS villages_ouaga
 
 // --- BLOC 8: Village Bogodogo avec ses événements ---
@@ -536,7 +527,7 @@ OPTIONAL MATCH (l_village)-[hp_village:IS_FROM_PROVINCE]->(province)
 OPTIONAL MATCH (l_village)-[hv_bogodogo:IS_FROM_DEPARTEMENT]->(l_ouaga)
 
 WITH flood_events, flood_triplets, sync_triplets, before_triplets, after_triplets,
-     l_ouaga, province, hp, region, hr, voisins_3, villages_ouaga,
+     l_ouaga, province, hp, region, hr, villages_ouaga,
      collect({
          event: e_village,
          risk: r_village,
@@ -551,7 +542,7 @@ WITH flood_events, flood_triplets, sync_triplets, before_triplets, after_triplet
 
 // --- BLOC 9: Collecter tous les événements ---
 WITH flood_triplets, sync_triplets, before_triplets, after_triplets,
-     l_ouaga, province, hp, region, hr, voisins_3, villages_ouaga, village_events,
+     l_ouaga, province, hp, region, hr, villages_ouaga, village_events,
      [e IN flood_triplets | e.event] + 
      [e IN sync_triplets | e.event] + 
      [e IN before_triplets | e.event] + 
@@ -568,7 +559,7 @@ OPTIONAL MATCH (ev1)-[sync_rel:IS_SYNCHRONOUS]-(ev2)
 WHERE id(ev1) < id(ev2)
 
 WITH flood_triplets, sync_triplets, before_triplets, after_triplets,
-     l_ouaga, province, hp, region, hr, voisins_3, villages_ouaga, village_events,
+     l_ouaga, province, hp, region, hr, villages_ouaga, village_events,
      all_events,
      collect(DISTINCT CASE WHEN rec IS NOT NULL 
              THEN {rel: rec, from: ev1, to: ev2} END) AS recurrent_rels,
@@ -589,7 +580,7 @@ WHERE ev_from IS NOT NULL AND ev_to IS NOT NULL
   }
 
 WITH flood_triplets, sync_triplets, before_triplets, after_triplets,
-     l_ouaga, province, hp, region, hr, voisins_3, villages_ouaga, village_events,
+     l_ouaga, province, hp, region, hr, villages_ouaga, village_events,
      recurrent_rels, synchronous_rels,
      collect(DISTINCT CASE WHEN prec IS NOT NULL 
              THEN {rel: prec, from: ev_from, to: ev_to} END) AS precedes_rels
@@ -606,7 +597,6 @@ RETURN
     region AS Region_Centre,
     hr AS IS_FROM_REGION,
     villages_ouaga AS Villages_IS_FROM_VILLAGE,
-    voisins_3 AS Voisins_IS_NEAR_TO,
     village_events AS Evenements_Village_Bogodogo,
     [r IN recurrent_rels WHERE r IS NOT NULL] AS Relations_IS_RECURRENT,
     [s IN synchronous_rels WHERE s IS NOT NULL] AS Relations_IS_SYNCHRONOUS,
@@ -723,14 +713,13 @@ Expert annotation campaign on 1,133 extracted triplets:
 |--------|-------|
 | Unique events | 376 |
 | Risk types | 77 |
-| Distinct locations | 71 (415 including hierarchy and neighbors) |
+| Distinct locations | 71 (415 including hierarchy) |
 | Temporal entities | 147 |
 | Source articles | 200 |
 | IS_RECURRENT relationships | 141 |
 | IS_SYNCHRONOUS relationship pairs | 263 (526 directed edges) |
 | PRECEDES relationships | 9,726 |
 | Spatial hierarchy relations | 91 |
-| IS_NEAR_TO relations | 354 |
 
 **Corpus distribution by theme:**
 - Sociopolitical: 29.9%
