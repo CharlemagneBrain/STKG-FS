@@ -125,11 +125,11 @@ Evaluated on a held-out test set containing ~20% unseen entities at each hierarc
 
 | Entity Type | Precision | Recall | F1-Score | Support |
 |-------------|-----------|--------|----------|---------|
-| Country     | 0.98      | 1.00   | 0.99     | 4,648   |
-| Region      | 0.99      | 0.99   | 0.99     | 6,744   |
+| Country     | 0.99      | 0.99   | 0.99     | 4,648   |
+| Region      | 1.00      | 0.99   | 0.99     | 1,433   |
 | Province    | 0.99      | 0.98   | 0.99     | 541     |
-| Department  | 0.99      | 0.99   | 0.99     | 1,433   |
-| Village     | 0.94      | 0.98   | 0.96     | 3,236   |
+| Department  | 0.99      | 0.99   | 0.99     | 6,744   |
+| Village     | 0.94      | 0.93   | 0.94     | 3,236   |
 | **Micro avg** | **0.98** | **0.98** | **0.98** | **16,602** |
 
 ### Comparison with Baselines

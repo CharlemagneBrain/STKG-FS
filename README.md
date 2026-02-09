@@ -40,7 +40,7 @@ The approach combines three specialized components:
 
 ### Key Features
 
-- **Fine-grained spatial entity extraction**: Village-level geographic recognition using fine-tuned CamemBERT, achieving F1=0.96--0.99 across all administrative levels
+- **Fine-grained spatial entity extraction**: Village-level geographic recognition using fine-tuned CamemBERT, achieving F1=0.94--0.99 across all administrative levels
 - **Temporal expression normalization**: French temporal extraction with HeidelTime (TIMEX3 standard)
 - **Triplet formation**: Projection-based algorithm creating *(Risk Indicator, Location, Date)* triplets with 81.91% accuracy
 - **Knowledge graph construction**: Neo4j-based graph with spatial hierarchies and temporal inference relations (IS_RECURRENT, IS_SYNCHRONOUS, PRECEDES)
@@ -71,11 +71,11 @@ The approach combines three specialized components:
 
 | Entity Type | Precision | Recall | F1-Score |
 |-------------|-----------|--------|----------|
-| Country     | 0.98      | 1.00   | 0.99     |
-| Region      | 0.99      | 0.99   | 0.99     |
+| Country     | 0.99      | 0.99   | 0.99     |
+| Region      | 1.00      | 0.99   | 0.99     |
 | Province    | 0.99      | 0.98   | 0.99     |
 | Department  | 0.99      | 0.99   | 0.99     |
-| Village     | 0.94      | 0.98   | 0.96     |
+| Village     | 0.94      | 0.93   | 0.94     |
 
 ---
 
@@ -724,11 +724,11 @@ Fine-tuned CamemBERT evaluated on a held-out test set containing ~20% unseen ent
 
 | Entity Type | Precision | Recall | F1-Score | Support |
 |-------------|-----------|--------|----------|---------|
-| Country     | 0.98      | 1.00   | 0.99     | 4,648   |
-| Region      | 0.99      | 0.99   | 0.99     | 6,744   |
+| Country     | 0.99      | 0.99   | 0.99     | 4,648   |
+| Region      | 1.00      | 0.99   | 0.99     | 1,433   |
 | Province    | 0.99      | 0.98   | 0.99     | 541     |
-| Department  | 0.99      | 0.99   | 0.99     | 1,433   |
-| Village     | 0.94      | 0.98   | 0.96     | 3,236   |
+| Department  | 0.99      | 0.99   | 0.99     | 6,744   |
+| Village     | 0.94      | 0.93   | 0.94     | 3,236   |
 | **Micro avg** | **0.98** | **0.98** | **0.98** | **16,602** |
 
 **Comparison with baselines** (on 1,000 test articles):
