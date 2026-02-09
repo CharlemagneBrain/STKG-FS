@@ -91,7 +91,7 @@ The approach combines three specialized components:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/[username]/stkgfs.git
+git https://github.com/CharlemagneBrain/STKG-FS.git
 cd stkgfs
 
 # 2. Create and activate virtual environment
@@ -294,7 +294,6 @@ jupyter notebook CamemBERT_FT.ipynb
 | Frozen layers | Embedding layers only |
 | Trainable parameters | 85,062,923 / 110,039,819 (77.3%) |
 
-**Expected training time**: ~2-3 hours on NVIDIA RTX 3090
 
 **What the notebook does**:
 1. Loads BIO-tagged training data from `annotations/`
