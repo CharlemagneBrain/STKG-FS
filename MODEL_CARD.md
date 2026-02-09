@@ -57,6 +57,8 @@ This model is a fine-tuned version of [`camembert-base`](https://huggingface.co/
 - **Base model**: `camembert-base`
 - **License**: MIT
 - **Paper**: *Spatio-Temporal Knowledge Graph from Unstructured Texts: A Multi-Scale Approach for Food Security Monitoring* (AGILE 2026)
+- **DOI (model)**: [10.57967/hf/7766](https://doi.org/10.57967/hf/7766)
+- **DOI (datasets)**: [10.57967/hf/7767](https://doi.org/10.57967/hf/7767)
 
 ## Intended Use
 
@@ -157,6 +159,7 @@ import torch
 # Load model and tokenizer
 tokenizer = CamembertTokenizerFast.from_pretrained("CharlesAbdoulaye/BF_NER")
 model = CamembertForTokenClassification.from_pretrained("CharlesAbdoulaye/BF_NER")
+model.eval()
 
 # Entity labels
 label_list = [
@@ -169,56 +172,57 @@ label_list = [
 ]
 id2label = {i: label for i, label in enumerate(label_list)}
 
-# Example text
-text = "Les inondations ont touché Ouagadougou et les villages de Pabre et Koubri dans la province du Kadiogo."
+# Example text with all 5 entity types
+text = "La crise alimentaire au Burkina Faso a frappe la region des Hauts-Bassins et la province du Houet. La ville de Bobo-Dioulasso et le village de Sya sont particulierement touches."
 
-# Tokenize
-inputs = tokenizer(text, return_tensors="pt", truncation=True)
+# Tokenize with offset mapping for span extraction
+inputs = tokenizer(text, return_tensors="pt", truncation=True, return_offsets_mapping=True)
+offset_mapping = inputs.pop("offset_mapping")[0].tolist()
 
-# Inference
 with torch.no_grad():
     outputs = model(**inputs)
 
-# Get predictions
-predictions = torch.argmax(outputs.logits, dim=2)
+preds = torch.argmax(outputs.logits, dim=2)[0].tolist()
 tokens = tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
 
-# Print entities
-print("Detected entities:")
-for token, pred_id in zip(tokens, predictions[0]):
-    label = id2label[pred_id.item()]
-    if label != "O":
-        print(f"  {token}: {label}")
+# Reconstruct entities with character spans
+entities, current = [], None
+for idx, (pred_id, (start, end)) in enumerate(zip(preds, offset_mapping)):
+    if start == 0 and end == 0:
+        if current: entities.append(current); current = None
+        continue
+    label = id2label[pred_id]
+    is_subword = not tokens[idx].startswith("\u2581")
+    if label.startswith("B-"):
+        if current: entities.append(current)
+        current = {"type": label[2:], "start": start, "end": end}
+    elif label.startswith("I-") or (is_subword and current):
+        if current: current["end"] = end
+    else:
+        if current: entities.append(current); current = None
+if current: entities.append(current)
+
+# Merge consecutive same-type entities (handles hyphenated names)
+merged = []
+for ent in entities:
+    if merged and merged[-1]["type"] == ent["type"]:
+        gap = text[merged[-1]["end"]:ent["start"]]
+        if gap in ("", "-", " -", "- "):
+            merged[-1]["end"] = ent["end"]; continue
+    merged.append(dict(ent))
+
+for ent in merged:
+    ent["text"] = text[ent["start"]:ent["end"]].rstrip(".,;:!?")
+    print(f'{ent["text"]:20s} | {ent["type"]:15s} | span=({ent["start"]}, {ent["end"]})')
 ```
 
 **Expected output:**
 ```
-Detected entities:
-  Ouagadougou: B-departement
-  Pabre: B-village
-  Koubri: B-village
-  Kadiogo: B-province
-```
-
-### Advanced Usage: Entity Extraction Pipeline
-
-```python
-from transformers import pipeline
-
-# Create NER pipeline
-ner_pipeline = pipeline(
-    "token-classification",
-    model="CharlesAbdoulaye/BF_NER",
-    tokenizer="CharlesAbdoulaye/BF_NER",
-    aggregation_strategy="simple"  # Groups B- and I- tags
-)
-
-# Extract entities
-text = "La sécheresse affecte le Sahel et les régions de Ouagadougou."
-entities = ner_pipeline(text)
-
-for entity in entities:
-    print(f"{entity['word']}: {entity['entity_group']} (score: {entity['score']:.2f})")
+Burkina Faso         | country         | span=(24, 36)
+Hauts-Bassins        | region          | span=(60, 73)
+Houet                | province        | span=(92, 97)
+Bobo-Dioulasso       | departement     | span=(111, 125)
+Sya                  | village         | span=(143, 146)
 ```
 
 ## Limitations
@@ -253,7 +257,13 @@ This model is intended for research and humanitarian applications:
 If you use this model in your research, please cite:
 
 ```bibtex
-
+@article{ngom2026stkgfs,
+  title={Spatio-Temporal Knowledge Graph from Unstructured Texts: A Multi-Scale Approach for Food Security Monitoring},
+  author={Ngom, Charles Abdoulaye and Rajaonarivo, Landy and Valentin, Sarah and Teisseire, Maguelonne},
+  journal={AGILE: GIScience Series},
+  year={2026},
+  doi={10.57967/hf/7766}
+}
 ```
 
 ## Contact

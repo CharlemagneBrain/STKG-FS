@@ -98,7 +98,7 @@ if __name__ == "__main__":
     
     preprocessor = Preprocess_News_Papers(csv_path)
     result_df = preprocessor.apply_splitting(
-        max_length=200,
+        max_length=300,
         min_words=100,
         overlap=0.2
     )

@@ -3,7 +3,10 @@
 A framework for constructing spatio-temporal knowledge graphs from French news articles to monitor food security in Burkina Faso.
 
 > **Paper**: *Spatio-Temporal Knowledge Graph from Unstructured Texts: A Multi-Scale Approach for Food Security Monitoring*
-> Submitted to **AGILE: GIScience Series, 2026**
+> **Authors**: Charles Abdoulaye Ngom, Landy Rajaonarivo, Sarah Valentin, Maguelonne Teisseire
+> Published in **AGILE: GIScience Series, 2026**
+>
+> **Model DOI**: [10.57967/hf/7766](https://doi.org/10.57967/hf/7766) | **Dataset DOI**: [10.57967/hf/7767](https://doi.org/10.57967/hf/7767)
 
 ---
 
@@ -178,8 +181,16 @@ stkgfs/
 │       ├── stkg_dtb.cypher              # Generated Neo4j import file
 │       └── stkg_dtb_events.csv          # Event summary CSV
 │
-├── Preprocessing/                        # Text preprocessing utilities
-│   └── Preprocess_News_Papers.py        # Article segmentation with overlap
+├── Preprocessing/                        # Step 0: Text preprocessing
+│   ├── Preprocess_News_Papers.py        # Article segmentation with overlap
+│   └── raw_articles.csv                 # Source articles (available on request, see below)
+│
+├── csv_to_map.py                         # Step 7: Generate interactive Folium map from query results
+│
+├── images/                               # Figures for paper and README
+│   ├── extract_kg_overview.png          # Knowledge graph overview (Figure 2)
+│   ├── H1_Ouaga_historical_events.png   # Temporal monitoring (Figure 4)
+│   └── map_env_agr_eco_risks_2009_annotated.png  # Risk map (Figure 5)
 │
 ├── results_csv/                          # Intermediate evaluation results
 │   ├── entites_df.csv
@@ -201,6 +212,8 @@ stkgfs/
 - **1,000 articles** used for knowledge graph extraction and validation
 - Collected from major West African news outlets (LeFaso.net, Burkina24)
 - Articles segmented into overlapping windows (configurable length and overlap)
+
+> **Note**: The raw corpus file (`Preprocessing/raw_articles.csv`) contains copyrighted press articles and is **available on request only** for research purposes. Please contact the authors (see [Contact](#contact)) to obtain access.
 
 ### Training Data for NER
 
@@ -258,22 +271,17 @@ Follow these steps sequentially to reproduce the complete pipeline. Each step pr
 
 ### Step 1: Preprocess News Articles
 
+> **Data**: Requires `Preprocessing/raw_articles.csv` (available on request, see [Data Description](#source-corpus)).
+
+The `Preprocess_News_Papers.py` script segments raw articles into overlapping windows of 300 words with 20% overlap. It reads `raw_articles.csv` (columns: `TXT`, `ANNEE`) and produces a segmented CSV used by downstream steps.
+
 ```bash
 cd Preprocessing
+python Preprocess_News_Papers.py
 ```
 
-The `Preprocess_News_Papers.py` module segments raw articles into overlapping windows:
-
-```python
-from Preprocess_News_Papers import Preprocess_News_Papers
-
-preprocessor = Preprocess_News_Papers("path/to/raw_articles.csv")
-segmented_df = preprocessor.apply_splitting(
-    max_length=200,    # Maximum words per segment
-    min_words=10,      # Minimum words threshold
-    overlap=0.2        # 20% overlap between segments
-)
-```
+- **Input**: `Preprocessing/raw_articles.csv`
+- **Output**: `Spatial_Annotation_Detection/data/df_sample.csv` (segmented articles, 1,000 articles)
 
 ### Step 2: Fine-tune CamemBERT for Spatial NER
 
@@ -281,6 +289,9 @@ segmented_df = preprocessor.apply_splitting(
 cd Fine-Tuning
 jupyter notebook CamemBERT_FT.ipynb
 ```
+
+- **Training data**: `Fine-Tuning/annotations/train_extended_bio_feb.json`, `val_extended_bio_feb.json`, `test_extended_bio_feb.json`
+- **Output**: fine-tuned model checkpoint
 
 **Training configuration:**
 
@@ -293,14 +304,22 @@ jupyter notebook CamemBERT_FT.ipynb
 | Weight decay | 0.01 |
 | Frozen layers | Embedding layers only |
 | Trainable parameters | 85,062,923 / 110,039,819 (77.3%) |
-
+| Training time | ~2-3 hours on NVIDIA RTX 3090 |
 
 **What the notebook does**:
-1. Loads BIO-tagged training data from `annotations/`
+1. Loads BIO-tagged training data from `Fine-Tuning/annotations/`
 2. Tokenizes with CamemBERT tokenizer and aligns labels
 3. Freezes embedding layers to preserve pre-trained French representations
 4. Trains for 70 epochs with evaluation every 100 steps
 5. Evaluates on held-out test set with `seqeval` classification report
+
+> **Skip training**: If you do not have the time or GPU resources to fine-tune the model, you can download our pre-trained model directly from HuggingFace and proceed to Step 3:
+> ```python
+> from transformers import CamembertTokenizerFast, CamembertForTokenClassification
+> tokenizer = CamembertTokenizerFast.from_pretrained("CharlesAbdoulaye/BF_NER")
+> model = CamembertForTokenClassification.from_pretrained("CharlesAbdoulaye/BF_NER")
+> ```
+> DOI: [10.57967/hf/7766](https://doi.org/10.57967/hf/7766)
 
 ### Step 3: Evaluate Spatial Entity Detection
 
@@ -309,8 +328,11 @@ cd Spatial_Annotation_Detection
 jupyter notebook Spatial_Pipeline.ipynb
 ```
 
+- **Input**: `Spatial_Annotation_Detection/data/df_sample.csv` (1,000 annotated articles)
+- **Output**: evaluation metrics comparing CamemBERT vs. GLiNER
+
 **What the notebook does**:
-1. Loads 1,000 manually annotated articles (`data/df_sample.csv`)
+1. Loads 1,000 manually annotated articles from `Spatial_Annotation_Detection/data/df_sample.csv`
 2. Compares fine-tuned CamemBERT vs. GLiNER (zero-shot)
 3. Filters predictions against validated entity sets
 4. Computes character-level BIO metrics with `seqeval`
@@ -322,13 +344,19 @@ cd Temporal_Entities_Detection
 jupyter notebook Heideltime_Detection.ipynb
 ```
 
-**Prerequisites**: Java 8+ and correct `config.props` paths.
+**Prerequisites**: Java 8+ and correct `config.props` paths (see [HeidelTime Configuration](#heideltime-configuration)).
+
+- **Input**: `Spatial_Annotation_Detection/data/df_sample.csv` (segmented articles from Step 1)
+- **Output**: `Temporal_Entities_Detection/data/new_heaideltime_today.csv` (temporal annotations)
+- **Runtime**: ~7 hours (HeidelTime processes each article segment individually via Java subprocess)
 
 **What the notebook does**:
 1. Extracts publication dates from article headers using regex
 2. Runs HeidelTime with French language rules and `news` document type
 3. Extracts DATE-type TIMEX3 expressions with character spans
-4. Saves results to `data/new_heaideltime_today.csv`
+4. Saves results to `Temporal_Entities_Detection/data/new_heaideltime_today.csv`
+
+> **Long runtime**: HeidelTime processing takes approximately **7 hours** on the full corpus. The output file `Temporal_Entities_Detection/data/new_heaideltime_today.csv` is included in the repository, so you can skip this step and proceed directly to Step 5 if needed.
 
 ### Step 5: Form Triplets
 
@@ -336,6 +364,9 @@ jupyter notebook Heideltime_Detection.ipynb
 cd Triplet_Formation
 jupyter notebook Triplet_Algo.ipynb
 ```
+
+- **Input**: `Triplet_Formation/data/reconstruct_df_new.csv` (reconstructed articles), `Triplet_Formation/data/lexique_enrichi_final_july.csv` (food security lexicon)
+- **Output**: `Events_to_Graph/data/df_preprocessed.csv` (triplets with labels)
 
 **What the notebook does**:
 1. Reconstructs full articles from segments (with span offset correction)
@@ -361,6 +392,9 @@ python enrich_geo_wikidata_complete.py data/df_preprocessed.csv data/processed_w
 python generate_neo4j_graph.py data/processed_wd.csv data/stkg_dtb.cypher
 ```
 
+- **Input**: `Events_to_Graph/data/df_preprocessed.csv` (triplets from Step 5)
+- **Output**: `Events_to_Graph/data/processed_wd.csv` (Wikidata-enriched), `Events_to_Graph/data/stkg_dtb.cypher` (Neo4j import file)
+
 **Wikidata enrichment** (`enrich_geo_wikidata_complete.py`):
 - Queries Wikidata SPARQL endpoint for each unique location
 - Retrieves: Wikidata Q-ID, coordinates (lat/lon), administrative type
@@ -380,13 +414,28 @@ python generate_neo4j_graph.py data/processed_wd.csv data/stkg_dtb.cypher
 
 ```cypher
 // In Neo4j Browser or cypher-shell:
-:source /path/to/stkg_dtb.cypher
+:source /path/to/Events_to_Graph/data/stkg_dtb.cypher
 ```
 
 Or via command line:
 ```bash
-cat data/stkg_dtb.cypher | cypher-shell -u neo4j -p <password>
+cat Events_to_Graph/data/stkg_dtb.cypher | cypher-shell -u neo4j -p <password>
 ```
+
+### Step 8: Generate Interactive Risk Map
+
+After running the queries from [Query 4](#queries-for-paper-figures) and exporting the results as a CSV, use `csv_to_map.py` to generate an interactive Folium map:
+
+```bash
+python csv_to_map.py
+```
+
+- **Input**: CSV file with columns `place, type, latitude, longitude, Flood, Fire, ...` (exported from Neo4j Query 4)
+- **Output**: `output_data/dataviz/carto_all_events.html` (interactive HTML map)
+
+The script uses different marker shapes by administrative level (circle = region, star = department, marker = village) and color-coded risk indicators (blue = Flood, red = Fire, green = Agricultural Campaign, purple = Price Increase).
+
+![Environmental, Agricultural and Economic Risks Map](images/map_env_agr_eco_risks_2009_annotated.png)
 
 ---
 
@@ -617,7 +666,7 @@ RETURN
   loc.latitude  AS latitude,
   loc.longitude AS longitude,
   
-  // ============= RISQUES ENVIRONNEMENTAUX (inchangés) =============
+  // ============= RISQUES ENVIRONNEMENTAUX  =============
   SUM(CASE WHEN r.name = 'inondation'      THEN 1 ELSE 0 END) AS Flood,
   SUM(CASE WHEN r.name = 'incendie'        THEN 1 ELSE 0 END) AS Fire,
   SUM(CASE WHEN r.name = 'sécheresse'      THEN 1 ELSE 0 END) AS Drought,
@@ -630,7 +679,7 @@ RETURN
   SUM(CASE WHEN r.name = 'éboulement'      THEN 1 ELSE 0 END) AS Landslide,
   SUM(CASE WHEN r.name = 'écroulement'     THEN 1 ELSE 0 END) AS Collapse,
   
-  // ============= RISQUES ÉCONOMIQUES (agrégés) =============
+  // ============= RISQUES ÉCONOMIQUES =============
   
   // Campagne agricole (seul)
   SUM(CASE WHEN r.name = 'campagne agricole' THEN 1 ELSE 0 END) AS AgriculturalCampaign,
@@ -754,8 +803,8 @@ These differences do not affect the conclusions or interpretations presented in 
 
 The fine-tuned CamemBERT model and training datasets are available at:
 
-**Model**: [`CharlesAbdoulaye/BF_NER`](https://huggingface.co/CharlesAbdoulaye/BF_NER)
-**Datasets**: [`CharlesAbdoulaye/BF_NER_datasets`](https://huggingface.co/datasets/CharlesAbdoulaye/BF_NER_datasets) (coming soon)
+**Model**: [`CharlesAbdoulaye/BF_NER`](https://huggingface.co/CharlesAbdoulaye/BF_NER) -- DOI: [10.57967/hf/7766](https://doi.org/10.57967/hf/7766)
+**Datasets**: [`CharlesAbdoulaye/BF_NER_datasets`](https://huggingface.co/datasets/CharlesAbdoulaye/BF_NER_datasets) -- DOI: [10.57967/hf/7767](https://doi.org/10.57967/hf/7767)
 
 #### Model Card Summary
 
@@ -779,6 +828,7 @@ import torch
 # Load model and tokenizer
 tokenizer = CamembertTokenizerFast.from_pretrained("CharlesAbdoulaye/BF_NER")
 model = CamembertForTokenClassification.from_pretrained("CharlesAbdoulaye/BF_NER")
+model.eval()
 
 # Entity labels
 label_list = [
@@ -791,27 +841,59 @@ label_list = [
 ]
 id2label = {i: label for i, label in enumerate(label_list)}
 
-# Inference
-text = "Les inondations ont touche Ouagadougou et les villages de Pabre et Koubri."
-inputs = tokenizer(text, return_tensors="pt", truncation=True)
+# Example text covering all 5 administrative levels
+text = "La crise alimentaire au Burkina Faso a frappe la region des Hauts-Bassins et la province du Houet. La ville de Bobo-Dioulasso et le village de Sya sont particulierement touches."
+
+# Tokenize with offset mapping for span extraction
+inputs = tokenizer(text, return_tensors="pt", truncation=True, return_offsets_mapping=True)
+offset_mapping = inputs.pop("offset_mapping")[0].tolist()
 
 with torch.no_grad():
     outputs = model(**inputs)
 
-predictions = torch.argmax(outputs.logits, dim=2)
+preds = torch.argmax(outputs.logits, dim=2)[0].tolist()
 tokens = tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
 
-for token, pred_id in zip(tokens, predictions[0]):
-    label = id2label[pred_id.item()]
-    if label != "O":
-        print(f"{token}: {label}")
+# Reconstruct entities with spans (handles subword tokens)
+entities, current = [], None
+for idx, (pred_id, (start, end)) in enumerate(zip(preds, offset_mapping)):
+    if start == 0 and end == 0:
+        if current: entities.append(current); current = None
+        continue
+    label = id2label[pred_id]
+    is_subword = not tokens[idx].startswith("\u2581")
+    if label.startswith("B-"):
+        if current: entities.append(current)
+        current = {"type": label[2:], "start": start, "end": end}
+    elif label.startswith("I-") or (is_subword and current):
+        if current: current["end"] = end
+    else:
+        if current: entities.append(current); current = None
+if current: entities.append(current)
+
+# Merge consecutive same-type entities and clean boundaries
+merged = []
+for ent in entities:
+    if merged and merged[-1]["type"] == ent["type"]:
+        gap = text[merged[-1]["end"]:ent["start"]]
+        if gap in ("", "-", " -", "- "):
+            merged[-1]["end"] = ent["end"]; continue
+    merged.append(dict(ent))
+
+for ent in merged:
+    ent["text"] = text[ent["start"]:ent["end"]].rstrip(".,;:!?")
+
+for ent in merged:
+    print(f'{ent["text"]:20s} | {ent["type"]:15s} | span=({ent["start"]}, {ent["end"]})')
 ```
 
 **Expected output:**
 ```
-Ouagadougou: B-departement
-Pabre: B-village
-Koubri: B-village
+Burkina Faso         | country         | span=(24, 36)
+Hauts-Bassins        | region          | span=(60, 73)
+Houet                | province        | span=(92, 97)
+Bobo-Dioulasso       | departement     | span=(111, 125)
+Sya                  | village         | span=(143, 146)
 ```
 
 #### Publishing to HuggingFace
@@ -884,7 +966,13 @@ for file_path in dataset_files:
 If you use this code, data, or model in your research, please cite:
 
 ```bibtex
-
+@article{ngom2026stkgfs,
+  title={Spatio-Temporal Knowledge Graph from Unstructured Texts: A Multi-Scale Approach for Food Security Monitoring},
+  author={Ngom, Charles Abdoulaye and Rajaonarivo, Landy and Valentin, Sarah and Teisseire, Maguelonne},
+  journal={AGILE: GIScience Series},
+  year={2026},
+  doi={10.57967/hf/7766}
+}
 ```
 
 ---
