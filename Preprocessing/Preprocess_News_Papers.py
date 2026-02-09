@@ -89,3 +89,18 @@ class Preprocess_News_Papers():
         logging.info("Segmentation Done !")
         segmented_df = pd.DataFrame(all_segments)
         return segmented_df
+
+if __name__ == "__main__":
+    import logging
+    logging.basicConfig(level=logging.INFO)
+
+    csv_path = "raw_articles.csv"
+    
+    preprocessor = Preprocess_News_Papers(csv_path)
+    result_df = preprocessor.apply_splitting(
+        max_length=200,
+        min_words=100,
+        overlap=0.2
+    )
+    
+    result_df.to_csv("Spatial_Annotation_Detection/data/df_sample.csv", index=False, sep=";")
