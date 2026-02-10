@@ -729,7 +729,7 @@ Fine-tuned CamemBERT evaluated on a held-out test set containing ~20% unseen ent
 | Province    | 0.99      | 0.98   | 0.99     | 541     |
 | Department  | 0.99      | 0.99   | 0.99     | 6,744   |
 | Village     | 0.94      | 0.93   | 0.94     | 3,236   |
-| **Micro avg** | **0.98** | **0.98** | **0.98** | **16,602** |
+| **Micro avg** | **0.98** | **0.98** | **0.98** | **16,60** |
 
 **Comparison with baselines** (on 1,000 test articles):
 
