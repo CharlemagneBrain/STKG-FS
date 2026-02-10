@@ -277,7 +277,7 @@ The `Preprocess_News_Papers.py` script segments raw articles into overlapping wi
 
 ```bash
 cd Preprocessing
-python Preprocess_News_Papers.py
+python Main.py
 ```
 
 - **Input**: `Preprocessing/raw_articles.csv`
