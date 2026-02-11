@@ -256,6 +256,8 @@ The following manual interventions were applied by domain experts:
 
 Follow these steps sequentially to reproduce the complete pipeline. Each step produces outputs consumed by subsequent steps.
 
+> **Note on computation time**: Some pipeline steps are computationally intensive (CamemBERT fine-tuning: ~7h, HeidelTime temporal extraction: ~8h). To allow users to start at any step without re-running the full pipeline, **pre-computed intermediate results are provided in the `data/` subdirectory of each step**.
+
 ### Step 1: Preprocess News Articles
 
 > **Data**: Requires `Preprocessing/raw_articles.csv` (available on request, see [Data Description](#source-corpus)).
@@ -291,7 +293,7 @@ jupyter notebook CamemBERT_FT.ipynb
 | Weight decay | 0.01 |
 | Frozen layers | Embedding layers only |
 | Trainable parameters | 85,062,923 / 110,039,819 (77.3%) |
-| Training time | ~2-3 hours on NVIDIA RTX 3090 |
+| Training time | ~7 hours on NVIDIA RTX 3090 |
 
 **What the notebook does**:
 1. Loads BIO-tagged training data from `Fine-Tuning/annotations/`
@@ -335,7 +337,7 @@ jupyter notebook Heideltime_Detection.ipynb
 
 - **Input**: `Spatial_Annotation_Detection/data/df_sample.csv` (segmented articles from Step 1)
 - **Output**: `Temporal_Entities_Detection/data/new_heaideltime_today.csv` (temporal annotations)
-- **Runtime**: ~7 hours (HeidelTime processes each article segment individually via Java subprocess)
+- **Runtime**: ~8 hours (HeidelTime processes each article segment individually via Java subprocess)
 
 **What the notebook does**:
 1. Extracts publication dates from article headers using regex
@@ -343,7 +345,7 @@ jupyter notebook Heideltime_Detection.ipynb
 3. Extracts DATE-type TIMEX3 expressions with character spans
 4. Saves results to `Temporal_Entities_Detection/data/new_heaideltime_today.csv`
 
-> **Long runtime**: HeidelTime processing takes approximately **7 hours** on the full corpus. The output file `Temporal_Entities_Detection/data/new_heaideltime_today.csv` is included in the repository, so you can skip this step and proceed directly to Step 5 if needed.
+> **Long runtime**: HeidelTime processing takes approximately **8 hours** on the full corpus. The output file `Temporal_Entities_Detection/data/new_heaideltime_today.csv` is included in the repository, so you can skip this step and proceed directly to Step 5 if needed.
 
 ### Step 5: Form Triplets
 
