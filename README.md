@@ -458,6 +458,8 @@ The knowledge graph contains **4 node types** and **3 relationship categories**:
    - `IS_SYNCHRONOUS`: Same location + same date, different risks (bidirectional)
    - `PRECEDES`: Same location + same year, different risks, sequential dates (with `duration_days`)
 
+> **Note**: For readability and clarity in the paper, some node types and relationships have been simplified or omitted from the queries and figures below. This does not affect the interpretation of the results, as the full graph schema described above remains available for comprehensive exploration.
+
 ### Queries for Paper Figures
 
 **Query 1:  Extract of knowledge graph showing three types of relationships (Figure 4)**
