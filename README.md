@@ -64,19 +64,6 @@ The approach combines three specialized components:
 │ Hierarchy        │───>│ Construction & Update    │
 └─────────────────┘    └──────────────────────────┘
 ```
-
-### Performance Highlights
-
-**Spatial Entity Recognition (Table 1 in paper)**
-
-| Entity Type | Precision | Recall | F1-Score |
-|-------------|-----------|--------|----------|
-| Country     | 0.99      | 0.99   | 0.99     |
-| Region      | 1.00      | 0.99   | 0.99     |
-| Province    | 0.99      | 0.98   | 0.99     |
-| Department  | 0.99      | 0.99   | 0.99     |
-| Village     | 0.94      | 0.93   | 0.94     |
-
 ---
 
 ## Installation

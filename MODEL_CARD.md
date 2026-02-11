@@ -138,9 +138,9 @@ Tested on 1,000 manually annotated news articles:
 
 | Model | Precision | Recall | F1-Score |
 |-------|-----------|--------|----------|
-| Baseline CamemBERT (no fine-tuning) | 0.87 | 0.58 | 0.70 |
-| GLiNER (zero-shot) | 0.82 | 0.77 | 0.79 |
-| **BF_NER (this model)** | **0.98** | **0.98** | **0.98** |
+| Baseline CamemBERT (no fine-tuning) | 0.41 | 0.81 | 0.55 |
+| GLiNER (zero-shot) | 0.66 | 0.63 | 0.65 |
+
 
 ## Usage
 
