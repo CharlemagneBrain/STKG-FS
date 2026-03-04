@@ -958,10 +958,7 @@ If you use this code, data, or model in your research, please cite:
 
 ```bibtex
 @article{ngom2026stkgfs,
-  title={Spatio-Temporal Knowledge Graph from Unstructured Texts: A Multi-Scale Approach for Food Security Monitoring},
-  author={Ngom, Charles Abdoulaye and Rajaonarivo, Landy and Valentin, Sarah and Teisseire, Maguelonne},
-  journal={AGILE: GIScience Series},
-  year={2026},
+  
 
 }
 ```
