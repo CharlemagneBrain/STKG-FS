@@ -22,7 +22,7 @@ def loadCSVData(_filepath, _separator=","):
         return df
 #==========================
 def spatialViz(_data):
-    data = _data
+    data = _data.dropna(subset=['latitude', 'longitude'])
     locations = data[['latitude', 'longitude']]
     locationlist = locations.values.tolist()
     print("data size:",len(locationlist))
@@ -111,7 +111,7 @@ if __name__ == '__main__' :
     #dep_risks_file=current_dir+"/input_data/year_flood_by_locations_edited.csv"
     #dep_risks_file=current_dir+"/input_data/all_risks_cities.csv"
     #dep_risks_file=current_dir+"/input_data/env_and_eco_priceandagri.csv"
-    dep_risks_file=current_dir+"eco-env-agr.csv"
+    dep_risks_file=current_dir+"/eco-env-agri.csv"
     data = loadCSVData(dep_risks_file)
     #print(data)
     spatialViz(data)
