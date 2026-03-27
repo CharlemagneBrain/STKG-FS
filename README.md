@@ -703,7 +703,7 @@ RETURN
 | Yatenga        | province    | 13.5833  | -2.4167   | 0     | 0    | 0       | 0     | 0       | 0         | 0            | 0               | 0             | 1         | 0        | 0                    | 0             |
 | Gounghin       | village     | –        | –         | 0     | 0    | 0       | 0     | 0       | 0         | 0            | 0               | 0             | 0         | 0        | 0                    | 1             |
 
-![Environmental, Agricultural and Economic Risks Map](images/map_env_agr_eco_risks_2009_annotated.png)
+![Environmental, Agricultural and Economic Risks Map](output_data/dataviz/figure5_vulnerable_zones.png)
 
 ---
 
