@@ -424,7 +424,7 @@ python csv_to_map.py
 
 The script uses different marker shapes by administrative level (circle = region, star = department, marker = village) and color-coded risk indicators (blue = Flood, red = Fire, green = Agricultural Campaign, purple = Price Increase).
 
-![Environmental, Agricultural and Economic Risks Map](images/map_env_agr_eco_risks_2009_annotated.png)
+![Environmental, Agricultural and Economic Risks Map](output_data/dataviz/figure5_vulnerable_zones.png)
 
 ---
 
