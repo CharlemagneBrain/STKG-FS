@@ -3,8 +3,8 @@
 A framework for constructing spatio-temporal knowledge graphs from French news articles to monitor food security in Burkina Faso.
 
 > **Paper**: *Spatio-Temporal Knowledge Graph from Unstructured Texts: A Multi-Scale Approach for Food Security Monitoring*
-> **Authors**: Charles Abdoulaye Ngom, Landy Rajaonarivo, Sarah Valentin, Maguelonne Teisseire
-> Accepted in **AGILE: GIScience Series, 2026**
+> **Authors**: Charles Abdoulaye Ngom, Landy Rajaonarivo, Maguelonne Teisseire, Sarah Valentin
+> Published in **AGILE: GIScience Series**, Vol. 7, Art. 16, 2026 — [agile-giss.copernicus.org/articles/7/16/2026](https://agile-giss.copernicus.org/articles/7/16/2026/agile-giss-7-16-2026.html) | **DOI**: [10.5194/agile-giss-7-16-2026](https://doi.org/10.5194/agile-giss-7-16-2026)
 >
 > **Model DOI**: [10.57967/hf/7766](https://doi.org/10.57967/hf/7766) | **Dataset DOI**: [10.57967/hf/7767](https://doi.org/10.57967/hf/7767)
 
@@ -81,7 +81,7 @@ The approach combines three specialized components:
 
 ```bash
 # 1. Clone the repository
-git https://github.com/CharlemagneBrain/STKG-FS.git
+git clone https://github.com/CharlemagneBrain/STKG-FS.git
 cd stkgfs
 
 # 2. Create and activate virtual environment
@@ -232,7 +232,7 @@ Domain-specific lexicon defined and validated by experts:
 
 ### Manual Annotations and Corrections
 
-> **Important**: Results in this repository may differ slightly from values reported in the associated paper. The conclusions and interpretations remain unchanged. Values will be adjusted in the final paper.
+> **Important**: Results in this repository may differ slightly from the values reported in the published paper (see [Notes on Divergences Between Code and Paper](#notes-on-divergences-between-code-and-paper)). The conclusions and interpretations remain unchanged.
 
 The following manual interventions were applied by domain experts:
 
@@ -958,10 +958,18 @@ If you use this code, data, or model in your research, please cite:
 
 ```bibtex
 @article{ngom2026stkgfs,
-  
-
+  author  = {Ngom, Charles Abdoulaye and Rajaonarivo, Landy and Teisseire, Maguelonne and Valentin, Sarah},
+  title   = {Spatio-Temporal Knowledge Graph from Unstructured Texts: A Multi-Scale Approach for Food Security Monitoring},
+  journal = {AGILE: GIScience Series},
+  volume  = {7},
+  pages   = {16},
+  year    = {2026},
+  doi     = {10.5194/agile-giss-7-16-2026},
+  url     = {https://agile-giss.copernicus.org/articles/7/16/2026/agile-giss-7-16-2026.html}
 }
 ```
+
+> Plain-text: Ngom, C. A., Rajaonarivo, L., Teisseire, M., and Valentin, S.: Spatio-Temporal Knowledge Graph from Unstructured Texts: A Multi-Scale Approach for Food Security Monitoring, AGILE: GIScience Series, 7, 16, https://doi.org/10.5194/agile-giss-7-16-2026, 2026.
 
 ---
 

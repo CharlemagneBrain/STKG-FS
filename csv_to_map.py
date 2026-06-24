@@ -10,6 +10,7 @@ import pandas as pd
 import cartopy.crs as ccrs
 import cartopy.io.shapereader as shpreader
 import geopandas as gpd
+from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D
 from pyproj import Geod
 
@@ -139,7 +140,53 @@ def _add_scale_bar(ax, length_km=100, location=(0.04, 0.07)):
             transform=ax.transAxes, ha="center", va="top", fontsize=7.5)
 
 
-def _build_legend(ax, present_types):
+class _BubbleSizeLegend(HandlerBase):
+    """Draws a horizontal strip of N bubbles (small → large) in one legend entry."""
+    def __init__(self, n_min=1, n_max=28, n_bubbles=5):
+        self._n_min    = int(n_min)
+        self._n_max    = int(n_max)
+        self._n_bubbles = n_bubbles
+        super().__init__()
+
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+        from matplotlib.patches import Circle
+        from matplotlib.text import Text
+        artists = []
+        n = self._n_bubbles
+
+        # Fixed spacing regardless of handle width — circles overflow into the
+        # empty label area (label="") via clip_on=False.
+        spacing = 14.0          # pts between circle centres
+        r_min   = 2.0
+        r_max   = 6.0           # gap de 6 pt entre les bords des grands cercles
+        circle_y = ydescent + height * 0.58
+
+        for i in range(n):
+            t  = i / (n - 1)
+            r  = r_min + t * (r_max - r_min)
+            cx = xdescent + spacing * (i + 0.5)
+            c  = Circle((cx, circle_y), r, facecolor="#888888", edgecolor="white",
+                        linewidth=0.4, transform=trans)
+            c.set_clip_on(False)
+            artists.append(c)
+
+        # "1" below first circle, "n_max" below last circle
+        fs = max(fontsize - 2, 5.5)
+        for xpos, lbl in [
+            (xdescent + 0.5 * spacing,           str(self._n_min)),
+            (xdescent + (n - 0.5) * spacing,     str(self._n_max)),
+        ]:
+            t = Text(xpos, ydescent - height * 0.20, lbl,
+                     ha="center", va="center",
+                     fontsize=fs, color="#333333", transform=trans)
+            t.set_clip_on(False)
+            artists.append(t)
+
+        return artists
+
+
+def _build_legend(ax, present_types, n_max=1):
     handles = []
 
     # ── SECTION 1 : RISKS ─────────────────────────────
@@ -179,21 +226,12 @@ def _build_legend(ax, present_types):
                    label="   " + lbl)
         )
 
-    # espace
-    handles.append(Line2D([], [], linestyle="none", label=" "))
-
     # ── SECTION 3 : NOMBRE D'ÉVÉNEMENTS ───────────────
     handles.append(Line2D([], [], linestyle="none", label="Number of Events"))
-    for n, sz in [(1, 5), (5, 9), (15, 13)]:
-        handles.append(
-            Line2D([0], [0],
-                   marker="o", linestyle="none",
-                   markerfacecolor="#888888",
-                   markeredgecolor="white",
-                   markeredgewidth=0.4,
-                   markersize=sz,
-                   label="   " + str(n))
-        )
+    handles.append(Line2D([], [], linestyle="none", label=" "))
+    _bubble_proxy   = Line2D([], [], linestyle="none", label="")
+    _bubble_handler = _BubbleSizeLegend(n_min=1, n_max=int(n_max), n_bubbles=5)
+    handles.append(_bubble_proxy)
 
     # ── CRÉATION LÉGENDE ──────────────────────────────
     leg = ax.legend(
@@ -207,12 +245,13 @@ def _build_legend(ax, present_types):
         title="Legend",
         title_fontsize=10,
         borderpad=1,
-        labelspacing=0.5,
+        labelspacing=0.4,
         handletextpad=0.6,
+        handlelength=2.0,
+        handleheight=2.0,
+        alignment="left",
+        handler_map={_bubble_proxy: _bubble_handler},
     )
-
-    # alignement gauche
-    leg._legend_box.align = "left"
 
     # titres en gras
     for text in leg.get_texts():
@@ -228,14 +267,7 @@ def _build_legend(ax, present_types):
 
 #==========================
 def spatialVizStatic(_data, output_path=None, dpi=300):
-    """Carte statique publication (PNG) avec les 4 éléments cartographiques.
-
-    Reviewer 3 — éléments inclus :
-      (1) Flèche Nord
-      (2) Barre d'échelle (100 km)
-      (3) Légende complète (risque, type de lieu, nb événements)
-      (4) Grille de coordonnées WGS84 (EPSG:4326)
-    """
+    
     if output_path is None:
         out_dir = os.path.join(current_dir, "output_data", "dataviz")
         os.makedirs(out_dir, exist_ok=True)
@@ -349,7 +381,7 @@ def spatialVizStatic(_data, output_path=None, dpi=300):
             path_effects=[pe.withStroke(linewidth=1.5, foreground="white")])
 
     # ── (3) Légende complète ──────────────────────────────────────────────
-    _build_legend(ax, set(data['type'].astype(str).str.strip().unique()))
+    _build_legend(ax, set(data['type'].astype(str).str.strip().unique()), n_max=n_max)
 
     # ── Titre & source ────────────────────────────────────────────────────
     # ax.set_title(
